@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.crypto.BadPaddingException;
@@ -56,7 +58,7 @@ public class UserController {
     public ResponseEntity userRegister(@Valid @RequestBody UserModel userModel) {
         try {
             log.info("START USER REGISTER");
-            UserModel usuarioEncontrado = userService.findUserByEmail(userModel.getEmail(), true);
+            UserModel usuarioEncontrado = userService.findUserByEmail(userModel.getUsername(), true);
             if (usuarioEncontrado == null) {
                 if(userModel.getOfficeId() != null) {
                     RoleModel rolEncontrado = roleRepository.findById(userModel.getRole().getId())
@@ -215,7 +217,6 @@ public class UserController {
             throw new RuntimeException(e);
         }
     }
-
 
     @RequestMapping(value = "/getOk", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity getOk() {

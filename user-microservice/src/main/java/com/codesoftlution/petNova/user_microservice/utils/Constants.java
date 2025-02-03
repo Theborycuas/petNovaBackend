@@ -6,6 +6,7 @@ public class Constants {
     public final static String TRANSFORMATION_AES = "AES/CBC/PKCS5PADDING";
     public final static String PN_INIT_VECTOR = "PetNovaencryptIV";
     public final static String PN_AES_KEY = "PetNovaEncryptKe";
+    public final static String PN_JWT_SECRET = "3uilvBItlYg08UumSc1gL4nSnEg3bjHa1qB27Vcp2tU=";
 
     public final static String AUTHORIZATION_HEADER = "PnAuthorization";
 }
