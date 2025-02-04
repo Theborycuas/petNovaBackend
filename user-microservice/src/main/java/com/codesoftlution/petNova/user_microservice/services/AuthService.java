@@ -64,4 +64,12 @@ public class AuthService {
                 .token(jwtToken)
                 .build();
     }
+
+    public boolean validateUserTokenActive(String token) {
+        String username = jwtService.extractUsername(token);
+        var userFound = userRepository.findByUsernameAndActive(username, true)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return jwtService.isTokenValid(token, userFound);
+
+    }
 }
