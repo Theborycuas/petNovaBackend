@@ -4,14 +4,14 @@ import com.codesoflution.petNova.cita_microservice.clientsfeign.UserFeignClient;
 import com.codesoflution.petNova.cita_microservice.dtos.UserDTO;
 import com.codesoflution.petNova.cita_microservice.models.CitaModel;
 import com.codesoflution.petNova.cita_microservice.repositories.ICitaRepository;
+import com.codesoflution.petNova.cita_microservice.response.AuthSesionResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Supplier;
-import java.util.logging.Logger;
 
 @Service
 public class CitaService {
@@ -19,11 +19,19 @@ public class CitaService {
     @Autowired
     private ICitaRepository citaRepository;
 
-    @Autowired
-    RestTemplate restTemplate;
+    /*@Autowired
+    RestTemplate restTemplate;*/
 
     @Autowired
     UserFeignClient userFeignClient;
+
+    public boolean validateUserTokenActive(String token){
+        ResponseEntity<AuthSesionResponse> response = userFeignClient.validateUserTokenActive(token);
+        if(response.getStatusCode().is2xxSuccessful() && Boolean.TRUE.equals(response.getBody().isSuccess())){
+            return true;
+        }
+        return false;
+    }
 
     public CitaModel registrarCitas(CitaModel cita) {
 

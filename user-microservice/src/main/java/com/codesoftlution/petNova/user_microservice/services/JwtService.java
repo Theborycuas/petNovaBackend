@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import static com.codesoftlution.petNova.user_microservice.utils.Constants.PN_JWT_SECRET;
+import static com.codesoftlution.petNova.user_microservice.utils.Constants.PN_SESION_TIME;
 
 @Service
 public class JwtService {
@@ -54,7 +55,7 @@ public class JwtService {
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24)) // 24 horas
+                .setExpiration(new Date(System.currentTimeMillis() + PN_SESION_TIME)) // 24 horas
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }

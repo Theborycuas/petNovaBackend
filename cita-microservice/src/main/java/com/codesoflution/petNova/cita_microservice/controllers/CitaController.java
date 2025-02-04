@@ -28,9 +28,15 @@ public class CitaController {
     Logger log = Logger.getLogger(this.getClass().getName());
 
     @RequestMapping(value = "/citaRegister/{userId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity citaRegister(@Valid @RequestBody CitaModel citaModel, @PathVariable Long userId) {
+    public ResponseEntity citaRegister(
+            @RequestHeader("Authorization") String token,
+            @Valid @RequestBody CitaModel citaModel,
+            @PathVariable Long userId) {
+        log.info("START CITA REGISTER");
         try {
-            log.info("START CITA REGISTER");
+            if(!citaService.validateUserTokenActive(token)){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("TOKEN INVALIDO");
+            }
             citaService.registrarCitas(citaModel);
             log.info("END CITA REGISTER");
             return new ResponseEntity("CITA REGISTRADA", HttpStatus.OK);
