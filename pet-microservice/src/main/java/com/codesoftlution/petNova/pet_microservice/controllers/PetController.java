@@ -24,13 +24,15 @@ public class PetController {
     Logger log = Logger.getLogger(PetController.class.getName());
 
    @RequestMapping(value = "/petRegister", method = RequestMethod.POST, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity petRegister(@Valid @RequestBody PetModel petModel) {
+    public ResponseEntity petRegister(
+            @RequestHeader("Authorization") String token,
+            @Valid @RequestBody PetModel petModel) {
 
         try {
             log.info("START PETREGISTER");
             Optional<PetModel> mascotaEncontrada = petService.findByNameAndSpecieIdAndUserId(petModel.getName(), petModel.getSpecie().getId(), petModel.getUserId());
             if (!mascotaEncontrada.isPresent()) {
-                petService.savePet(petModel);
+                petService.savePet(token, petModel);
                 log.info("END PETREGISTER");
                 return new ResponseEntity("MASCOTA CREADA", HttpStatus.CREATED);
             } else {
