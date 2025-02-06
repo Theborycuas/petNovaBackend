@@ -36,11 +36,11 @@ public class OfficeService {
 
 
 
-    public OfficeModel officeRegister(Long userId, OfficeModel officeModel, Long veterinarioId) {
+    public OfficeModel officeRegister(String token, Long userId, OfficeModel officeModel, Long veterinarioId) {
 
         //Validar que exista el ususario que crea el consultorio
 
-        UserDTO userDTO = userFeignClient.getUserById(userId);
+        UserDTO userDTO = userFeignClient.getUserById("Bearer " + token, userId);
 
         if(!"SUPER_ADMIN".equalsIgnoreCase(userDTO.getRollName()) &&
                 !"VETERINARIO".equalsIgnoreCase(userDTO.getRollName()) &&
@@ -58,7 +58,7 @@ public class OfficeService {
 
         //Asociar al veterinario si es incluido
        if(veterinarioId != null){
-            UserDTO veterinario = userFeignClient.getUserById(veterinarioId);
+            UserDTO veterinario = userFeignClient.getUserById("Bearer " + token, veterinarioId);
 
             if(!"VETERINARIO".equalsIgnoreCase(veterinario.getRollName())){
                 throw new RuntimeException("El Usuario asignado como responsable no es un Veterinario");

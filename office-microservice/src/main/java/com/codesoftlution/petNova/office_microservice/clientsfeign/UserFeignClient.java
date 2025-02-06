@@ -12,9 +12,12 @@ import org.springframework.web.bind.annotation.RequestHeader;
 public interface UserFeignClient {
 
     @GetMapping("/users/getUserById/{userId}")
-    UserDTO getUserById(@PathVariable("userId") Long userId);
+    UserDTO getUserById(
+            @RequestHeader("Authorization") String token,
+            @PathVariable("userId") Long userId);
 
     @GetMapping("/auth/validateUserTokenActive")
-    ResponseEntity<AuthSesionResponse> validateTokenActive(@RequestHeader("Authorization") String token);
+    ResponseEntity<AuthSesionResponse> validateTokenActive(
+            @RequestHeader("Authorization") String token);
 
 }

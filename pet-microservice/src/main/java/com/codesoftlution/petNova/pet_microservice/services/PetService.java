@@ -1,5 +1,7 @@
 package com.codesoftlution.petNova.pet_microservice.services;
 
+import com.codesoftlution.petNova.pet_microservice.clientsfeign.UserFeignClient;
+import com.codesoftlution.petNova.pet_microservice.dtos.UserDTO;
 import com.codesoftlution.petNova.pet_microservice.models.PetModel;
 import com.codesoftlution.petNova.pet_microservice.repositories.IPetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,12 +16,20 @@ public class PetService {
     @Autowired
     private IPetRepository petRepository;
 
+    @Autowired
+    private UserFeignClient userFeignClient;
+
     public Optional<PetModel> findByNameAndSpecieIdAndUserId(String name, Long specieId, Long userId){
         return petRepository.findByNameAndSpecieIdAndUserId(name, specieId, userId);
     }
 
-    public PetModel savePet(PetModel petModel) {
-        return petRepository.save(petModel);
+    public PetModel savePet(String token, PetModel petModel) {
+        UserDTO userDTO = userFeignClient.getUserById("Bearer " + token, petModel.getUserId());
+
+        if(userDTO != null) {
+            return petRepository.save(petModel);
+        }
+        throw new RuntimeException("Usuario no encontrado");
     }
 
     public List<PetModel> getAllPetsByUser(Long userId) {
