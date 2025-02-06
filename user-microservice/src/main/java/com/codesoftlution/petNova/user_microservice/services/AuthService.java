@@ -1,7 +1,9 @@
 package com.codesoftlution.petNova.user_microservice.services;
 
+import com.codesoftlution.petNova.user_microservice.clientsfeign.OfficeFeignClient;
 import com.codesoftlution.petNova.user_microservice.dtos.AuthRequest;
 import com.codesoftlution.petNova.user_microservice.dtos.AuthResponse;
+import com.codesoftlution.petNova.user_microservice.dtos.OfficeDTO;
 import com.codesoftlution.petNova.user_microservice.dtos.RegisterRequest;
 import com.codesoftlution.petNova.user_microservice.models.RoleModel;
 import com.codesoftlution.petNova.user_microservice.models.UserModel;
@@ -27,10 +29,23 @@ public class AuthService {
     @Autowired
     IRoleRepository roleRepository;
 
+    @Autowired
+    OfficeFeignClient officeFeignClient;
+
     public AuthResponse register(RegisterRequest request) {
+        Long officeIdFound = null;
 
         RoleModel role = roleRepository.findById(request.getRole().getId())
                 .orElseThrow(() -> new RuntimeException("Role not found"));
+
+        if ("VETERINARIO".equalsIgnoreCase(role.getRoleName())) {
+            if (request.getOfficeId() != null) {
+                OfficeDTO officeDTO = officeFeignClient.getOfficeById(request.getOfficeId());
+                if (officeDTO != null) {
+                    officeIdFound = officeDTO.getId();
+                }
+            }
+        }
 
         var user = UserModel.builder()
                 .name(request.getName())
@@ -41,7 +56,8 @@ public class AuthService {
                 .active(false)
                 .idNumber(request.getIdNumber())
                 .phoneNumber(request.getPhoneNumber())
-                .officeId(request.getOfficeId())
+                .officeId(officeIdFound)
+                .creationDate(LocalDateTime.now())
                 .build();
         userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);

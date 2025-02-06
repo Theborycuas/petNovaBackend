@@ -32,8 +32,8 @@ public class CitaController {
             @RequestHeader("Authorization") String token,
             @Valid @RequestBody CitaModel citaModel,
             @PathVariable Long userId) {
-        log.info("START CITA REGISTER");
         try {
+            log.info("START CITA REGISTER");
             if(!citaService.validateUserTokenActive(token)){
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("TOKEN INVALIDO");
             }

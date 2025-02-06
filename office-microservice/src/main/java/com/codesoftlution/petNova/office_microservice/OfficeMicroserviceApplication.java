@@ -1,4 +1,4 @@
-package com.codesoftlution.petNova.user_microservice;
+package com.codesoftlution.petNova.office_microservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,10 +6,10 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication
 @EnableFeignClients
-public class UserMicroserviceApplication {
+public class OfficeMicroserviceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(UserMicroserviceApplication.class, args);
+		SpringApplication.run(OfficeMicroserviceApplication.class, args);
 	}
 
 }
