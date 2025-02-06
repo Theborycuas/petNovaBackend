@@ -26,8 +26,9 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("apiPetNova/auth/**").permitAll() // Permite acceso público a los endpoints de autenticación
-                        .requestMatchers("apiPetNova/users/**").permitAll() // Permite acceso público a los endpoints de users
-                        .requestMatchers("apiPetNova/offices/**").permitAll() // Permite acceso público a los endpoints de consultorios
+                        //.requestMatchers("apiPetNova/users/**").permitAll() // Permite acceso público a los endpoints de users SIN AUTHENTICACIÓN
+                        .requestMatchers("apiPetNova/users/**").authenticated() // Permite acceso público a los endpoints de users CON AUTHENTICACIÓN
+                        .requestMatchers("apiPetNova/offices/**").authenticated() // Permite acceso público a los endpoints de consultorios
                         .anyRequest().authenticated()  // El resto de los endpoints requieren autenticación
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // Sin estado (stateless)
