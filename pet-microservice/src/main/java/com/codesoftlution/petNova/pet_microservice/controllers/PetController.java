@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
+import static com.codesoftlution.petNova.pet_microservice.mappers.PetMapper.toPetDTO;
+
 @RestController
 @RequestMapping("apiPetNova/pets")
 @CrossOrigin("*")
@@ -60,12 +62,14 @@ public class PetController {
     }
 
     @RequestMapping(value = "/getPetById/{petId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity getPetById(@PathVariable("petId") Long petId) {
+    public ResponseEntity getPetById(
+            @RequestHeader("Authorization") String token,
+            @PathVariable("petId") Long petId) {
         try {
             log.info("START GET PET BY ID");
             PetModel petModel = petService.getPetById(petId);
             log.info("END GET PET BY ID");
-            return new ResponseEntity(petModel, HttpStatus.OK);
+            return new ResponseEntity(toPetDTO(petModel), HttpStatus.OK);
 
         }catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
