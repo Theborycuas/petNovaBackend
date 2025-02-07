@@ -19,22 +19,12 @@ public class UserDTO {
     private String name;
     private String idNumber;
     private String username;
-
-    @Column(unique = true, nullable = false)
     private String email;
-
     private String rollName;
     private String phoneNumber;
     private boolean active;
-
-    @Column(columnDefinition = "TEXT")
     private String firebaseToken;
-
     private LocalDateTime creationDate;
-
-    @Column(columnDefinition = "TEXT")
     private String linkPerfilPhoto;
-
-    @Column(nullable = false, unique = true)
     private Long officeId;
 }
