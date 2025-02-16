@@ -55,7 +55,7 @@ public class UserController {
     Logger log = Logger.getLogger(UserController.class.getName());
 
     @RequestMapping(value = "/userRegister", method = RequestMethod.POST, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity userRegister(@Valid @RequestBody UserModel userModel) {
+    public ResponseEntity<?> userRegister(@Valid @RequestBody UserModel userModel) {
         try {
             log.info("START USER REGISTER");
             UserModel usuarioEncontrado = userService.findUserByEmail(userModel.getUsername(), true);
@@ -83,7 +83,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "/getUserByToken/{userToken}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity getUserByToken(@PathVariable("userToken") String userToken) {
+    public ResponseEntity<?> getUserByToken(@PathVariable("userToken") String userToken) {
         try {
             log.info("START USER GET USER BY TOKEN: ");
             UserModel userFound = userService.findUserByTokenAndActive(userToken, true);
@@ -99,7 +99,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "/getUserById/{userId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity getUserById(@PathVariable("userId") Long userId) {
+    public ResponseEntity<?> getUserById(@PathVariable("userId") Long userId) {
         try {
             log.info("START USER GET USER BY ID: ");
             UserModel userFound = userRepository.findById(userId)
@@ -113,7 +113,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "/updateUser", method = RequestMethod.POST, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity userUpdate(@Valid @RequestBody ResponseDataUserUpdate dataUserUpdate) {
+    public ResponseEntity<?> userUpdate(@Valid @RequestBody ResponseDataUserUpdate dataUserUpdate) {
         try {
             log.info("START USER UPDATE");
             String token = request.getHeader("PnAuthorization");
@@ -140,7 +140,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "/getUsers", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity getUsers() {
+    public ResponseEntity<?> getUsers() {
         try {
             log.info("START GETUSERS");
             List<UserModel> userModelList = userService.getUsers();
@@ -158,7 +158,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "/deleteUser", method = RequestMethod.DELETE, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity deleteUser() {
+    public ResponseEntity<?> deleteUser() {
         try {
             log.info("START DELETEUSER");
             String token = request.getHeader("PnAuthorization");
@@ -219,7 +219,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "/getOk", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity getOk() {
+    public ResponseEntity<?> getOk() {
         return new ResponseEntity<>("OK", HttpStatus.OK);
     }
 

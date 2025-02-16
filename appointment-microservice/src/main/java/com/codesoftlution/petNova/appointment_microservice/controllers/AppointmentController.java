@@ -34,7 +34,7 @@ public class AppointmentController {
             log.info("START CITA REGISTER");
             citaService.registrarCitas(token, citaModel);
             log.info("END CITA REGISTER");
-            return new ResponseEntity("CITA RESGISTRADA", HttpStatus.OK);
+            return new ResponseEntity("CITA REGISTRADA", HttpStatus.OK);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
