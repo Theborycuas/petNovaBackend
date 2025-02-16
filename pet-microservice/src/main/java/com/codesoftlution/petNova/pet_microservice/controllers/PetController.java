@@ -26,7 +26,7 @@ public class PetController {
     Logger log = Logger.getLogger(PetController.class.getName());
 
    @RequestMapping(value = "/petRegister", method = RequestMethod.POST, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity petRegister(
+    public ResponseEntity<?> petRegister(
             @RequestHeader("Authorization") String token,
             @Valid @RequestBody PetModel petModel) {
 
@@ -36,9 +36,9 @@ public class PetController {
             if (!mascotaEncontrada.isPresent()) {
                 petService.savePet(token, petModel);
                 log.info("END PETREGISTER");
-                return new ResponseEntity("MASCOTA CREADA", HttpStatus.CREATED);
+                return new ResponseEntity<>("MASCOTA CREADA", HttpStatus.CREATED);
             } else {
-                return new ResponseEntity("MASCOTA ENCONTRADA", HttpStatus.CONFLICT);
+                return new ResponseEntity<>("MASCOTA ENCONTRADA", HttpStatus.CONFLICT);
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -46,7 +46,7 @@ public class PetController {
     }
 
     @RequestMapping(value = "/getPetsByUser/{userId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity getPetsByUser(@PathVariable("userId") Long userId) {
+    public ResponseEntity<?> getPetsByUser(@PathVariable("userId") Long userId) {
         try {
 
             log.info("START GET PETS BY USER");
@@ -54,7 +54,7 @@ public class PetController {
             List<PetModel> petModelList = petService.getAllPetsByUser(userId);
 
             log.info("END GET PETS BY USER");
-            return new ResponseEntity(petModelList, HttpStatus.OK);
+            return new ResponseEntity<>(petModelList, HttpStatus.OK);
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -62,14 +62,14 @@ public class PetController {
     }
 
     @RequestMapping(value = "/getPetById/{petId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity getPetById(
+    public ResponseEntity<?> getPetById(
             @RequestHeader("Authorization") String token,
             @PathVariable("petId") Long petId) {
         try {
             log.info("START GET PET BY ID");
             PetModel petModel = petService.getPetById(petId);
             log.info("END GET PET BY ID");
-            return new ResponseEntity(toPetDTO(petModel), HttpStatus.OK);
+            return new ResponseEntity<>(toPetDTO(petModel), HttpStatus.OK);
 
         }catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -77,25 +77,24 @@ public class PetController {
     }
 
     @RequestMapping(value = "updatePet/{petId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity updatePet(@PathVariable("petId") Long petId, @RequestBody PetModel petModel) {
+    public ResponseEntity<?> updatePet(@PathVariable("petId") Long petId, @RequestBody PetModel petModel) {
         try {
             log.info("START UPDATE PET");
             petService.updatePet(petId, petModel);
             log.info("ENS UPDATE PET");
-            return new ResponseEntity("MASCOTA ACTUALIZADA", HttpStatus.OK);
+            return new ResponseEntity<>("MASCOTA ACTUALIZADA", HttpStatus.OK);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
-
     }
 
     @RequestMapping(value = "deletePet/{petId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity deletePet(@PathVariable("petId") Long petId) {
+    public ResponseEntity<?> deletePet(@PathVariable("petId") Long petId) {
         try {
             log.info("START DELETE PET");
             petService.deletePet(petId);
             log.info("END DELETE PET");
-            return new ResponseEntity("MASCOTA ELIMINADA", HttpStatus.OK);
+            return new ResponseEntity<>("MASCOTA ELIMINADA", HttpStatus.OK);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
