@@ -31,6 +31,7 @@ public class SecurityConfig {
                         .requestMatchers("apiPetNova/pets/**").permitAll() // Permite acceso público a los endpoints de mascotas
                         .requestMatchers("apiPetNova/offices/**").authenticated() // Permite acceso solo con auth a los endpoints de consultorios
                         .requestMatchers("apiPetNova/offices/**").authenticated() // Permite acceso solo con auth a los endpoints de consultorios
+                        .requestMatchers("apiPetNova/medicalHistories/**").authenticated() // Permite acceso solo con auth a los endpoints de Historias medicas
                         .anyRequest().authenticated()  // El resto de los endpoints requieren autenticación
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // Sin estado (stateless)
