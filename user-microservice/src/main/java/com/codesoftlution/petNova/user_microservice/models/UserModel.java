@@ -23,7 +23,11 @@ public class UserModel implements UserDetails {
     private Long id;
 
     private String name;
+
+    @Column(unique = true)
     private String idNumber;
+
+    @Column(unique = true, nullable = false)
     private String username;
 
     @Column(unique = true, nullable = false)
@@ -35,16 +39,20 @@ public class UserModel implements UserDetails {
     @JoinColumn(name = "role_id", nullable = false)
     private RoleModel role;
     private String phoneNumber;
-    private boolean active;
-    private boolean borrado;
 
-    @Column(columnDefinition = "TEXT")
-    private String token;
+    @Column(nullable = false)
+    private boolean active = false;
+
+    @Column(nullable = false)
+    private boolean emailVerified = false;
+
+    private boolean borrado;
 
     @Column(columnDefinition = "TEXT")
     private String firebaseToken;
 
     private LocalDateTime creationDate;
+    private LocalDateTime updateDate;
 
     @Column(columnDefinition = "TEXT")
     private String linkPerfilPhoto;
@@ -55,12 +63,4 @@ public class UserModel implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(() -> "ROLE_" + role.getRoleName());
     }
-    @Override
-    public boolean isAccountNonExpired() { return true; }
-    @Override
-    public boolean isAccountNonLocked() { return true; }
-    @Override
-    public boolean isCredentialsNonExpired() { return true; }
-    @Override
-    public boolean isEnabled() { return true; }
 }

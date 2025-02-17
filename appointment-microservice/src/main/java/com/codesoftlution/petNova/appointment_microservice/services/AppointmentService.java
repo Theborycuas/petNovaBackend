@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+import static com.codesoftlution.petNova.appointment_microservice.utils.Constants.PREFIX_BEARER;
+
 @Service
 public class AppointmentService {
 
@@ -27,10 +29,10 @@ public class AppointmentService {
         //Validar que el Usuario sea de tipo VETERINARIO
 
         UserDTO userDTO = userFeignClient
-                .getUserById("Bearer " + token, appointmentModel.getVeterinarioId());
+                .getUserById(PREFIX_BEARER + token, appointmentModel.getVeterinarioId());
 
         PetDTO petDTO = petFeignClient.
-                getPetById("Bearer " + token, appointmentModel.getPetId());
+                getPetById(PREFIX_BEARER + token, appointmentModel.getPetId());
 
         if(petDTO == null) {
             throw new RuntimeException("MASCOTA NO ENCONTRADA");
