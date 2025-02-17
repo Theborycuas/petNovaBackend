@@ -23,20 +23,6 @@ import static com.codesoftlution.petNova.user_microservice.utils.Constants.PN_SE
 @Service
 public class JwtService {
 
-    /*private static final String SECRET_KEY = "borysjair96123456789";
-
-    //private static final String SECRET_KEY = String.valueOf(Keys.secretKeyFor(SignatureAlgorithm.HS256));
-
-    public String generaClaveBase64(){
-        SecureRandom random = new SecureRandom();
-        byte[] key = new byte[32]; // 256 bits
-        random.nextBytes(key);
-
-        String base64 = Base64.getEncoder().encodeToString(key);
-
-        return base64;
-    }*/
-
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }

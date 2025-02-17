@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface IUserRepository extends JpaRepository<UserModel, Long> {
-    Optional<UserModel> findByUsernameAndActive(String email, boolean active);
-    UserModel findByTokenAndActive(String token, boolean active);
+    Optional<UserModel> findByUsername(String username);
+    Optional<UserModel> findByUsernameAndActive(String username, boolean active);
+    UserModel findByIdAndActive(Long userId, boolean active);
+    Optional<UserModel> findByUsernameAndActiveAndEmailVerified(String username, boolean active, boolean verified);
 }

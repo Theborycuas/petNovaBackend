@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+import static com.codesoftlution.petNova.pet_microservice.utils.Constants.PREFIX_BEARER;
+
 @Service
 public class PetService {
 
@@ -24,7 +26,7 @@ public class PetService {
     }
 
     public PetModel savePet(String token, PetModel petModel) {
-        UserDTO userDTO = userFeignClient.getUserById("Bearer " + token, petModel.getUserId());
+        UserDTO userDTO = userFeignClient.getUserById(PREFIX_BEARER + token, petModel.getUserId());
 
         if(userDTO != null) {
             return petRepository.save(petModel);

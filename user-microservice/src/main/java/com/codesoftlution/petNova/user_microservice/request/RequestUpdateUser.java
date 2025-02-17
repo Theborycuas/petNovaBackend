@@ -1,4 +1,4 @@
-package com.codesoftlution.petNova.user_microservice.response;
+package com.codesoftlution.petNova.user_microservice.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class ResponseDataUserUpdate {
+public class RequestUpdateUser {
+
 
     private String name;
     private String idNumber;

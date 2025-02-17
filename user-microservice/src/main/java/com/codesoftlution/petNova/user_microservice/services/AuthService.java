@@ -11,10 +11,12 @@ import com.codesoftlution.petNova.user_microservice.respositories.IRoleRepositor
 import com.codesoftlution.petNova.user_microservice.respositories.IUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 
@@ -36,7 +38,7 @@ public class AuthService {
         Long officeIdFound = null;
 
         RoleModel role = roleRepository.findById(request.getRole().getId())
-                .orElseThrow(() -> new RuntimeException("Role not found"));
+                .orElseThrow(() -> new RuntimeException("ROL NO ENCONTRADO"));
 
         if ("VETERINARIO".equalsIgnoreCase(role.getRoleName())) {
             if (request.getOfficeId() != null) {
@@ -53,7 +55,6 @@ public class AuthService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .email(request.getEmail())
                 .role(role)
-                .active(false)
                 .idNumber(request.getIdNumber())
                 .phoneNumber(request.getPhoneNumber())
                 .officeId(officeIdFound)
@@ -73,8 +74,8 @@ public class AuthService {
                         request.getPassword()
                 )
         );
-        var user = userRepository.findByUsernameAndActive(request.getUsername(), true)
-                .orElseThrow();
+        var user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "USUARIO NO ENCONTRADO"));
         var jwtToken = jwtService.generateToken(user);
         return AuthResponse.builder()
                 .token(jwtToken)
@@ -84,7 +85,7 @@ public class AuthService {
     public boolean validateUserTokenActive(String token) {
         String username = jwtService.extractUsername(token);
         var userFound = userRepository.findByUsernameAndActive(username, true)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("USUARIO NO ENCONTRADO"));
         return jwtService.isTokenValid(token, userFound);
 
     }

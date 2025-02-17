@@ -12,6 +12,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import static com.codesoftlution.petNova.medicalHistory_microservice.utils.Constants.PREFIX_BEARER;
+
 @Service
 public class MedicalHistoryService {
     @Autowired
@@ -26,11 +28,11 @@ public class MedicalHistoryService {
     public MedicalHistoryModel saveMedicalH(String token, MedicalHistoryModel medicalHistoryModel) {
         //Buscar mascota
         PetDTO petFound = petFeignClient
-                .getPetById("Bearer " + token, medicalHistoryModel.getPetId());
+                .getPetById(PREFIX_BEARER + token, medicalHistoryModel.getPetId());
 
         //Buscar VETERINARIO
         UserDTO userFound = userFeignClient
-                .getUserById("Bearer " + token, medicalHistoryModel.getVeterinarioId());
+                .getUserById(PREFIX_BEARER + token, medicalHistoryModel.getVeterinarioId());
 
         if(!"VETERINARIO".equalsIgnoreCase(userFound.getRollName())){
             throw new RuntimeException("El Usuario no es VETERINARIO");

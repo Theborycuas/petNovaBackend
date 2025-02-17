@@ -1,5 +1,7 @@
 package com.codesoftlution.petNova.user_microservice.config;
 
+import com.codesoftlution.petNova.user_microservice.models.UserModel;
+import com.codesoftlution.petNova.user_microservice.respositories.IUserRepository;
 import com.codesoftlution.petNova.user_microservice.services.JwtService;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
@@ -17,6 +19,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Optional;
+
+import static com.codesoftlution.petNova.user_microservice.utils.Constants.*;
 
 @Component
 @RequiredArgsConstructor
@@ -24,6 +29,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final CustomUserDetailsService userDetailsService;
     private final HttpServletResponse httpServletResponse;
+    private final IUserRepository iUserRepository;
 
     @Override
     protected void doFilterInternal(
@@ -36,7 +42,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String username;
 
         try {
-            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            if (authHeader == null || !authHeader.startsWith(PREFIX_BEARER)) {
                 filterChain.doFilter(request, response);
                 return;
             }
@@ -46,15 +52,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-                if (jwtService.isTokenValid(jwt, userDetails)) {
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                            userDetails,
-                            null,
-                            userDetails.getAuthorities()
-                    );
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
+
+                if (!jwtService.isTokenValid(jwt, userDetails)) {
+                    sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED,
+                            "TOKEN INVALIDO");
                 }
+
+                //Verificar si el usuario existe en la base de datos
+                Optional<UserModel> optionalUser = iUserRepository
+                        .findByUsernameAndActiveAndEmailVerified(username, true, true);
+                if(optionalUser.isEmpty()) {
+                    sendErrorResponse(response, HttpServletResponse.SC_UNAUTHORIZED,
+                            "USUARIO NO ACTIVO O EMAIL NO VERIFICADO");
+                    return;
+                }
+
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        userDetails.getAuthorities()
+                );
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authToken);
             }
             filterChain.doFilter(request, response);
         } catch (ExpiredJwtException e) {
@@ -66,5 +85,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             response.setContentType("application/json");
             response.getWriter().write("{\"error\": \"Acceso denegado\", \"message\": \"" + e.getMessage() + "\"}");
         }
+
+    }
+    private void sendErrorResponse(HttpServletResponse response, int status, String message) throws IOException {
+        response.setStatus(status);
+        response.setContentType("application/json");
+        response.getWriter().write("{\"error\": \"" + message + "\"}");
     }
 }
