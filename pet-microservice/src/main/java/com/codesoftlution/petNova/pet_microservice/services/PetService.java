@@ -5,9 +5,12 @@ import com.codesoftlution.petNova.pet_microservice.dtos.UserDTO;
 import com.codesoftlution.petNova.pet_microservice.models.PetModel;
 import com.codesoftlution.petNova.pet_microservice.repositories.IPetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.codesoftlution.petNova.pet_microservice.utils.Constants.PREFIX_BEARER;
@@ -28,10 +31,16 @@ public class PetService {
     public PetModel savePet(String token, PetModel petModel) {
         UserDTO userDTO = userFeignClient.getUserById(PREFIX_BEARER + token, petModel.getUserId());
 
-        if(userDTO != null) {
-            return petRepository.save(petModel);
+        if(userDTO == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "USUARIO NO ENCONTRADO");
         }
-        throw new RuntimeException("Usuario no encontrado");
+
+        if(!userDTO.getRollName().equals("SUPER_ADMIN") && !Objects.equals(petModel.getUserId(), userDTO.getId())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                    "NO TIENES PERMISO PARA CREAR ESTA MASCOTA");
+        }
+
+        return petRepository.save(petModel);
     }
 
     public List<PetModel> getAllPetsByUser(Long userId) {

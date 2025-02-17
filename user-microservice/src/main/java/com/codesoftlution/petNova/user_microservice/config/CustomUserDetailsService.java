@@ -17,7 +17,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws ResponseStatusException {
-        return userRepository.findByUsernameAndActive(username, true)
+        return userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Usuario no encontrado o no Activo"));
     }
