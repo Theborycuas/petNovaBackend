@@ -19,6 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;  // Inyecta el AuthenticationProvider
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -34,6 +35,8 @@ public class SecurityConfig {
                         .requestMatchers("apiPetNova/medicalHistories/**").authenticated() // Permite acceso solo con auth a los endpoints de Historias medicas
                         .anyRequest().authenticated()  // El resto de los endpoints requieren autenticación
                 )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)) //Deja de mostrar error 403 por defecto
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // Sin estado (stateless)
                 .authenticationProvider(authenticationProvider)  // Configura el AuthenticationProvider
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

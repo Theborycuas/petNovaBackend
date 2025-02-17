@@ -29,11 +29,10 @@ public class PetController {
     public ResponseEntity<?> petRegister(
             @RequestHeader("Authorization") String token,
             @Valid @RequestBody PetModel petModel) {
-
         try {
             log.info("START PETREGISTER");
             Optional<PetModel> mascotaEncontrada = petService.findByNameAndSpecieIdAndUserId(petModel.getName(), petModel.getSpecie().getId(), petModel.getUserId());
-            if (!mascotaEncontrada.isPresent()) {
+            if (mascotaEncontrada.isEmpty()) {
                 petService.savePet(token, petModel);
                 log.info("END PETREGISTER");
                 return new ResponseEntity<>("MASCOTA CREADA", HttpStatus.CREATED);
@@ -50,9 +49,7 @@ public class PetController {
         try {
 
             log.info("START GET PETS BY USER");
-
             List<PetModel> petModelList = petService.getAllPetsByUser(userId);
-
             log.info("END GET PETS BY USER");
             return new ResponseEntity<>(petModelList, HttpStatus.OK);
 

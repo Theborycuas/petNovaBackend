@@ -9,11 +9,16 @@ public class UserMapper {
         UserDTO userDTO = new UserDTO();
         userDTO.setId(userModel.getId());
         userDTO.setName(userModel.getName());
+        userDTO.setUsername(userModel.getUsername());
         userDTO.setEmail(userModel.getEmail());
         userDTO.setRollName(userModel.getRole().getRoleName());
         userDTO.setPhoneNumber(String.valueOf(userModel.getPhoneNumber()));
-
+        userDTO.setActive(userModel.isActive());
+        userDTO.setEmailVerified(userModel.isEmailVerified());
+        userDTO.setCreationDate(userModel.getCreationDate());
+        userDTO.setUpdateDate(userModel.getUpdateDate());
+        userDTO.setLinkPerfilPhoto(userModel.getLinkPerfilPhoto());
+        userDTO.setOfficeId(userModel.getOfficeId());
         return userDTO;
-
     }
 }

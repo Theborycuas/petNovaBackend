@@ -19,6 +19,7 @@ import javax.print.attribute.standard.Media;
 import java.util.List;
 import java.util.logging.Logger;
 
+import static com.codesoftlution.petNova.user_microservice.mappers.UserMapper.toUserDTO;
 import static com.codesoftlution.petNova.user_microservice.services.CifradoAESService.*;
 
 
@@ -45,7 +46,7 @@ public class UserController {
             UserModel userFound = userRepository.findById(userId)
                     .orElseThrow(()->new RuntimeException("No se encontro el usuario"));
             log.info("END USER GET USER BY ID: ");
-            return ResponseEntity.status(HttpStatus.OK).body(userFound);
+            return ResponseEntity.status(HttpStatus.OK).body(toUserDTO(userFound));
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

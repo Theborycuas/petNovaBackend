@@ -15,26 +15,17 @@ import java.time.LocalDateTime;
 public class UserDTO {
 
     private Long id;
-
     private String name;
     private String idNumber;
     private String username;
-
-    @Column(unique = true, nullable = false)
     private String email;
-
     private String rollName;
     private String phoneNumber;
     private boolean active;
-
-    @Column(columnDefinition = "TEXT")
+    private boolean emailVerified;
     private String firebaseToken;
-
     private LocalDateTime creationDate;
-
-    @Column(columnDefinition = "TEXT")
+    private LocalDateTime updateDate;
     private String linkPerfilPhoto;
-
-    @Column(nullable = false, unique = true)
     private Long officeId;
 }
