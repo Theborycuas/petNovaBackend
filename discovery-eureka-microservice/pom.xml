@@ -9,10 +9,10 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.codesoftlution.petNova</groupId>
-	<artifactId>discorvery-server</artifactId>
+	<artifactId>discovery-eureka-microservice</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>discorvery-server</name>
-	<description>Discovery Server</description>
+	<name>discovery-eureka-microservice</name>
+	<description>Disecovery Service</description>
 	<url/>
 	<licenses>
 		<license/>

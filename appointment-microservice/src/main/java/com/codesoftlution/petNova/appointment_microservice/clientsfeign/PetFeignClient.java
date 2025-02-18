@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 
-@FeignClient(name = "pet-microservice", url = "http://localhost:8002", path = "/apiPetNova")
+@FeignClient(name = "pet-microservice", path = "/apiPetNova")
 public interface PetFeignClient {
 
     @GetMapping("/pets/getPetById/{petId}")

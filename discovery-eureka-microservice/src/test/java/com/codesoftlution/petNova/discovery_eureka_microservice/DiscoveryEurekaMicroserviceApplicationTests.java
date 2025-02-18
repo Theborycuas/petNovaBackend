@@ -1,10 +1,10 @@
-package com.codesoftlution.petNova.discorvery_server;
+package com.codesoftlution.petNova.discovery_eureka_microservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class DiscorveryServerApplicationTests {
+class DiscoveryEurekaMicroserviceApplicationTests {
 
 	@Test
 	void contextLoads() {
