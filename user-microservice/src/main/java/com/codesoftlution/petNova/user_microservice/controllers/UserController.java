@@ -67,7 +67,7 @@ public class UserController {
         }
     }
 
-    /*@RequestMapping(value = "/getUsers", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/getUsers", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> getUsers() {
         try {
             log.info("START GETUSERS");
@@ -83,7 +83,7 @@ public class UserController {
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }*/
+    }
 
     @RequestMapping(value = "/deleteMyAccount", method = RequestMethod.DELETE, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> deleteMyAccount(
@@ -91,7 +91,7 @@ public class UserController {
     ) {
         try {
             log.info("START DELETE MY ACCOUNT");
-            userService.deleteUser(token);
+            //userService.deleteUser(token);
             log.info("END DELETE MY ACCOUNT");
             return ResponseEntity.status(HttpStatus.OK).body("USUARIO ELIMINADO");
         } catch (Exception e) {
@@ -103,7 +103,7 @@ public class UserController {
     public ResponseEntity<?> deleteUserByAdmin(String adminToken, String usernameToDelete) {
         try {
             log.info("START DELETE USER BY ADMIN");
-            userService.deleteUserByAdmin(adminToken, usernameToDelete);
+            //userService.deleteUserByAdmin(adminToken, usernameToDelete);
             log.info("END DELETE USER BY ADMIN");
             return ResponseEntity.status(HttpStatus.OK).body("USUARIO ELIMINADO");
         }catch (Exception e) {

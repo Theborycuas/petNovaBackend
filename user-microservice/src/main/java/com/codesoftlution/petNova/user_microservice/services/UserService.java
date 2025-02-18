@@ -5,9 +5,6 @@ import com.codesoftlution.petNova.user_microservice.request.RequestUpdateUser;
 import com.codesoftlution.petNova.user_microservice.respositories.IUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -16,12 +13,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UserService implements UserDetailsService {
+public class UserService {
     @Autowired
     IUserRepository iUserRepository;
 
-    @Autowired
-    private JwtService jwtService;
 
     public UserModel findUserByEmail(String email, boolean active) {
         return iUserRepository.findByUsernameAndActive(email, active)
@@ -38,9 +33,8 @@ public class UserService implements UserDetailsService {
 
     public UserModel updateUser(String token, RequestUpdateUser userUpdate) {
 
-        String getUserName = jwtService.extractUsername(token.substring(7));
 
-        UserModel userFound = iUserRepository.findByUsernameAndActive(getUserName, true)
+        UserModel userFound = iUserRepository.findByUsernameAndActive(userUpdate.getUsername(), true)
                 .orElseThrow(() -> new RuntimeException("USUARIO NO ENCONTRADO"));
 
         //Utilizo Optional.ofNullable reemplazando el if para comparar si cada atributo viene vacio
@@ -56,17 +50,16 @@ public class UserService implements UserDetailsService {
         return iUserRepository.save(userFound);
     }
 
-    public void deleteUser(String token) {
-        String userName = jwtService.extractUsername(token.substring(7));
+    /*public void deleteUser(String token) {
 
         UserModel userFound = iUserRepository.findByUsernameAndActive(userName, true)
                 .orElseThrow(()-> new RuntimeException("USUARIO NO ENCONTRADO"));
 
         userFound.setActive(false);
         iUserRepository.save(userFound);
-    }
+    }*/
 
-    public void deleteUserByAdmin(String adminToken, String userName) {
+    /*public void deleteUserByAdmin(String adminToken, String userName) {
 
         String userNameAdmin = jwtService.extractUsername(adminToken.substring(7));
 
@@ -86,7 +79,7 @@ public class UserService implements UserDetailsService {
 
         userToDelete.setActive(false);
         iUserRepository.save(userToDelete);
-    }
+    }*/
 
     public void approveVeterinarian(Long id){
         UserModel userFound = iUserRepository.findById(id)
@@ -101,9 +94,9 @@ public class UserService implements UserDetailsService {
 
 
 
-    @Override
+ /*   @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return iUserRepository.findByUsernameAndActive(username, true)
                 .orElseThrow(() -> new UsernameNotFoundException("El usuario no existe o no esta Activo"));
-    }
+    }*/
 }
