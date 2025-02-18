@@ -5,7 +5,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-@FeignClient(name = "office-microservice", url = "http://localhost:8004", path = "/apiPetNova")
+@FeignClient(name = "office-microservice", path = "/apiPetNova")
 public interface OfficeFeignClient {
 
     @GetMapping("/offices/getOfficeById/{officeId}")
