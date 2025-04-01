@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/config-server/pom.xml" />
+        <option value="$PROJECT_DIR$/pet-microservice/pom.xml" />
+        <option value="$PROJECT_DIR$/user-microservice/pom.xml" />
+        <option value="$PROJECT_DIR$/api-gateway-petNova/pom.xml" />
+        <option value="$PROJECT_DIR$/office-microservice/pom.xml" />
+        <option value="$PROJECT_DIR$/appointment-microservice/pom.xml" />
+        <option value="$PROJECT_DIR$/medicalHistory-microservice/pom.xml" />
+        <option value="$PROJECT_DIR$/discovery-eureka-microservice/pom.xml" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_23" default="true" project-jdk-name="openjdk-23" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/out" />
+  </component>
+</project>
