@@ -60,7 +60,6 @@ public class PetController {
 
     @RequestMapping(value = "/getPetById/{petId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getPetById(
-            @RequestHeader("Authorization") String token,
             @PathVariable("petId") Long petId) {
         try {
             log.info("START GET PET BY ID");
