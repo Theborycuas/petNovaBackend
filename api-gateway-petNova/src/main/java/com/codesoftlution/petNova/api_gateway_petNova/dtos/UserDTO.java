@@ -1,10 +1,6 @@
-package com.codesoftlution.petNova.user_microservice.dtos;
+package com.codesoftlution.petNova.api_gateway_petNova.dtos;
 
-import jakarta.persistence.Column;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -12,6 +8,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class UserDTO {
 
     private Long id;

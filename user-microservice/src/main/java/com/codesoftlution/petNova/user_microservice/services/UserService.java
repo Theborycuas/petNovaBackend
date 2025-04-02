@@ -1,7 +1,12 @@
 package com.codesoftlution.petNova.user_microservice.services;
 
+import com.codesoftlution.petNova.user_microservice.clientsfeign.OfficeFeignClient;
+import com.codesoftlution.petNova.user_microservice.dtos.OfficeDTO;
+import com.codesoftlution.petNova.user_microservice.dtos.UserDTO;
+import com.codesoftlution.petNova.user_microservice.models.RoleModel;
 import com.codesoftlution.petNova.user_microservice.models.UserModel;
 import com.codesoftlution.petNova.user_microservice.request.RequestUpdateUser;
+import com.codesoftlution.petNova.user_microservice.respositories.IRoleRepository;
 import com.codesoftlution.petNova.user_microservice.respositories.IUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,13 +17,21 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static com.codesoftlution.petNova.user_microservice.mappers.UserMapper.toUserModel;
+
 @Service
 public class UserService {
     @Autowired
     IUserRepository iUserRepository;
 
+    @Autowired
+    IRoleRepository roleRepository;
 
-    public UserModel findUserByEmail(String email, boolean active) {
+    @Autowired
+    OfficeFeignClient officeFeignClient;
+
+
+    public UserModel findByUsernameAndActive(String email, boolean active) {
         return iUserRepository.findByUsernameAndActive(email, active)
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
@@ -29,6 +42,16 @@ public class UserService {
 
     public List<UserModel> getUsers() {
         return iUserRepository.findAll();
+    }
+
+    public UserModel createUser(UserDTO userDTO) {
+        Optional<UserModel> userFound = iUserRepository.findByUsernameAndActive(userDTO.getUsername(), true);
+        if (!userFound.isPresent()) {
+            return iUserRepository.save(toUserModel(userDTO));
+        }else{
+            return null;
+        }
+
     }
 
     public UserModel updateUser(String token, RequestUpdateUser userUpdate) {

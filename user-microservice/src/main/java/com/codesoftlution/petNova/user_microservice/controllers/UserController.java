@@ -1,5 +1,6 @@
 package com.codesoftlution.petNova.user_microservice.controllers;
 
+import com.codesoftlution.petNova.user_microservice.dtos.UserDTO;
 import com.codesoftlution.petNova.user_microservice.models.UserModel;
 import com.codesoftlution.petNova.user_microservice.response.ListUserResponse;
 import com.codesoftlution.petNova.user_microservice.request.RequestUpdateUser;
@@ -53,6 +54,33 @@ public class UserController {
         }
     }
 
+    @RequestMapping(value = "/findByUsernameAndActive/{userName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getUserById(@PathVariable("userName") String userName) {
+        try {
+            log.info("START USER GET USER BY ID: ");
+            UserModel userFound = userRepository.findByUsernameAndActive(userName, true)
+                    .orElseThrow(()->new RuntimeException("No se encontro el usuario"));
+            log.info("END USER GET USER BY ID: ");
+            return ResponseEntity.status(HttpStatus.OK).body(toUserDTO(userFound));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @RequestMapping(value = "/createUser", method = RequestMethod.POST, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<?> userCreate(
+            @Valid @RequestBody UserDTO userDTO) {
+        try {
+            log.info("START USER UPDATE USER: ");
+            UserModel updatedUser = userService.createUser(userDTO);
+            log.info("END USER UPDATE USER: ");
+            return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+
     @RequestMapping(value = "/updateUser", method = RequestMethod.POST, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> userUpdate(
             @Valid @RequestHeader("Authorization") String token,
@@ -67,7 +95,7 @@ public class UserController {
         }
     }
 
-    @RequestMapping(value = "/getUsers", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+   /* @RequestMapping(value = "/getUsers", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> getUsers() {
         try {
             log.info("START GETUSERS");
@@ -83,7 +111,7 @@ public class UserController {
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
+    }*/
 
     @RequestMapping(value = "/deleteMyAccount", method = RequestMethod.DELETE, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> deleteMyAccount(

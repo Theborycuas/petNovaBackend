@@ -7,5 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface IRoleRepository extends JpaRepository<RoleModel, Long> {
     boolean existsByRoleName(String rolName);
+    RoleModel findByRoleName(String roleName);
 
 }
