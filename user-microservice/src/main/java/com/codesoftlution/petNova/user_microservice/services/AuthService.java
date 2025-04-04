@@ -64,7 +64,8 @@ public class AuthService {
                 .phoneNumber(request.getPhoneNumber())
                 .officeId(officeIdFound)
                 .creationDate(LocalDateTime.now())
-                .active(false)
+                .active(true)
+                .emailVerified(false)
                 .build();
         userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);
