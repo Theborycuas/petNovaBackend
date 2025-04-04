@@ -1,51 +1,59 @@
 package com.codesoftlution.petNova.user_microservice.config;
 
-import lombok.RequiredArgsConstructor;
+import com.codesoftlution.petNova.user_microservice.respositories.IUserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
 public class SecurityConfig {
-    private final JwtAuthenticationFilter jwtAuthFilter;
-    private final AuthenticationProvider authenticationProvider;  // Inyecta el AuthenticationProvider
-    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("apiPetNova/auth/**").permitAll() // Permite acceso público a los endpoints de autenticación
-                        //.requestMatchers("apiPetNova/users/**").permitAll() // Permite acceso público a los endpoints de users SIN AUTHENTICACIÓN
-                        .requestMatchers("apiPetNova/users/**").authenticated() // Permite acceso solo con auth a los endpoints de users CON AUTHENTICACIÓN
-                        .requestMatchers("apiPetNova/pets/**").permitAll() // Permite acceso público a los endpoints de mascotas
-                        .requestMatchers("apiPetNova/offices/**").authenticated() // Permite acceso solo con auth a los endpoints de consultorios
-                        .requestMatchers("apiPetNova/offices/**").authenticated() // Permite acceso solo con auth a los endpoints de consultorios
-                        .requestMatchers("apiPetNova/medicalHistories/**").authenticated() // Permite acceso solo con auth a los endpoints de Historias medicas
-                        .anyRequest().authenticated()  // El resto de los endpoints requieren autenticación
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(
+                                "/apiPetNova/auth/userRegister",
+                                "/apiPetNova/auth/userLogin",
+                                "/apiPetNova/public/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
+                        .requestMatchers(
+                                "/apiPetNova/users/**"
+                        ).authenticated()
+                        .anyRequest().authenticated()
                 )
-                .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint(customAuthenticationEntryPoint)) //Deja de mostrar error 403 por defecto
-                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // Sin estado (stateless)
-                .authenticationProvider(authenticationProvider)  // Configura el AuthenticationProvider
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .csrf(AbstractHttpConfigurer::disable) // Forma recomendada en Spring Boot 3.x+
+                .formLogin(AbstractHttpConfigurer::disable) // Deshabilitar formulario de login
+                .httpBasic(AbstractHttpConfigurer::disable); // Deshabilitar autenticación básica
 
         return http.build();
     }
 
     @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService(IUserRepository userRepository) {
+        return username -> userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
 }

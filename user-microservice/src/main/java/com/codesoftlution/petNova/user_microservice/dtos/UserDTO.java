@@ -19,6 +19,7 @@ public class UserDTO {
     private String idNumber;
     private String username;
     private String email;
+    private String password;
     private String rollName;
     private String phoneNumber;
     private boolean active;

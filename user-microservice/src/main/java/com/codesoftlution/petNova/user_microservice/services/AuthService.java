@@ -37,6 +37,11 @@ public class AuthService {
     public AuthResponse register(RegisterRequest request) {
         Long officeIdFound = null;
 
+        if(request.getRole() == null){
+            RoleModel role = new RoleModel();
+            role.setId(4L);
+            request.setRole(role);
+        }
         RoleModel role = roleRepository.findById(request.getRole().getId())
                 .orElseThrow(() -> new RuntimeException("ROL NO ENCONTRADO"));
 
@@ -59,6 +64,8 @@ public class AuthService {
                 .phoneNumber(request.getPhoneNumber())
                 .officeId(officeIdFound)
                 .creationDate(LocalDateTime.now())
+                .active(true)
+                .emailVerified(false)
                 .build();
         userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);
