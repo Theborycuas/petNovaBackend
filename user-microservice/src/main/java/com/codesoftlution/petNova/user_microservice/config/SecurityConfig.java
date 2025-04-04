@@ -22,16 +22,13 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
-                                "/apiPetNova/auth/userRegister",
-                                "/apiPetNova/auth/userLogin",
+                                "/apiPetNova/auth/**",
+                                "/apiPetNova/users/**"/*,
                                 "/apiPetNova/public/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html"
+                                "/swagger-ui.html"*/
                         ).permitAll()
-                        .requestMatchers(
-                                "/apiPetNova/users/**"
-                        ).authenticated()
                         .anyRequest().authenticated()
                 )
                 .csrf(AbstractHttpConfigurer::disable) // Forma recomendada en Spring Boot 3.x+
