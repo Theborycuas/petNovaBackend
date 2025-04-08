@@ -9,7 +9,7 @@ public class Constants {
     public final static String PN_INIT_VECTOR = "PetNovaencryptIV";
     public final static String PN_AES_KEY = "PetNovaEncryptKe";
     public final static int PN_SESION_TIME = 1000 * 60 * 30; // 30 Minutos
-    //public final static int PN_SESION_TIME = 1000 * 60 * 60 * 24; // 24 horas
+    public final static long REFRESH_TOKEN_VALIDITY = 30L * 24 * 60 * 60 * 1000;// 30 Días
 
     public final static String AUTHORIZATION_HEADER = "PnAuthorization";
     public final static String PREFIX_BEARER = "Bearer ";
