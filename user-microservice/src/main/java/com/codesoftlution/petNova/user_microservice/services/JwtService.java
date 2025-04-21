@@ -15,13 +15,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import static com.codesoftlution.petNova.user_microservice.utils.Constants.PN_SESION_TIME;
+import static com.codesoftlution.petNova.user_microservice.utils.Constants.*;
 
 @Service
 public class JwtService {
 
     @Value("${jwt.secret}")
     private String jwtSecret;
+
+    @Value("${jwt.expiration}")
+    private long jwtExpiration;
+
+    @Value("${jwt.refreshExpiration}")
+    private long jwtRefreshExpiration;
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -41,7 +47,21 @@ public class JwtService {
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + PN_SESION_TIME)) // 24 horas
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration * 1000)) // 1 horas
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String generateRefreshToken(UserDetails userDetails) {
+        return generateRefreshToken(new HashMap<>(), userDetails);
+    }
+
+    public String generateRefreshToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+        return Jwts.builder()
+                .setClaims(extraClaims)
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + jwtRefreshExpiration * 1000)) // 30 días
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }

@@ -7,6 +7,7 @@ import com.codesoftlution.petNova.user_microservice.response.AuthSesionResponse;
 import com.codesoftlution.petNova.user_microservice.services.AuthService;
 import com.codesoftlution.petNova.user_microservice.services.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,7 +38,8 @@ public class AuthController {
         log.info("START USER LOGIN");
         AuthResponse authResponse = authService.authenticate(request);
         log.info("END USER LOGIN");
-        return ResponseEntity.ok(authResponse);
+        return ResponseEntity.ok()
+                .body(authResponse);
     }
 
     @GetMapping("/validateUserTokenActive")
