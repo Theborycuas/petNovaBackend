@@ -1,5 +1,6 @@
 package com.codesoftlution.petNova.user_microservice.services;
 
+import com.codesoftlution.petNova.user_microservice.models.UserModel;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -12,8 +13,10 @@ import org.springframework.stereotype.Service;
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.codesoftlution.petNova.user_microservice.utils.Constants.*;
 
@@ -39,6 +42,15 @@ public class JwtService {
     }
 
     public String generateToken(UserDetails userDetails) {
+        Map<String, Object> extraClaims = new HashMap<>();
+
+        if (userDetails instanceof UserModel) {
+            UserModel user = (UserModel) userDetails;
+            extraClaims.put("officeId", user.getOfficeId());
+            String role = user.getRole().getRoleName();
+            extraClaims.put("role", role);
+        }
+
         return generateToken(new HashMap<>(), userDetails);
     }
 

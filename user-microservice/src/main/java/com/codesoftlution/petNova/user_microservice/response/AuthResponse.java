@@ -1,4 +1,4 @@
-package com.codesoftlution.petNova.user_microservice.dtos;
+package com.codesoftlution.petNova.user_microservice.response;
 
 import lombok.Builder;
 import lombok.Data;
@@ -14,4 +14,7 @@ public class AuthResponse {
     private boolean registered;
     private String kind;
     private String localId;
+    private String pictureUrl;
+    private String role;
+    private Long officeId;
 }

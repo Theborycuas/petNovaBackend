@@ -1,8 +1,8 @@
 package com.codesoftlution.petNova.user_microservice.services;
 
 import com.codesoftlution.petNova.user_microservice.clientsfeign.OfficeFeignClient;
-import com.codesoftlution.petNova.user_microservice.dtos.AuthRequest;
-import com.codesoftlution.petNova.user_microservice.dtos.AuthResponse;
+import com.codesoftlution.petNova.user_microservice.request.AuthRequest;
+import com.codesoftlution.petNova.user_microservice.response.AuthResponse;
 import com.codesoftlution.petNova.user_microservice.dtos.OfficeDTO;
 import com.codesoftlution.petNova.user_microservice.dtos.RegisterRequest;
 import com.codesoftlution.petNova.user_microservice.models.RoleModel;
@@ -92,6 +92,8 @@ public class AuthService {
         return AuthResponse.builder()
                 .displayName(user.getName())
                 .email(user.getEmail())
+                .role(user.getRole().getRoleName())
+                .officeId(user.getOfficeId())
                 .registered(user.isActive())
                 .expiresIn(jwtExpiration)
                 .idToken(jwtToken)
