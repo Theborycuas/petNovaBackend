@@ -86,7 +86,7 @@ public class AuthService {
                 )
         );
         var user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "USUARIO NO ENCONTRADO"));
+                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "USUARIO NO ENCONTRADO O NO REGISTRADO"));
         var jwtToken = jwtService.generateToken(user);
         var jwtRefreshToken = jwtService.generateRefreshToken(user);
         return AuthResponse.builder()
