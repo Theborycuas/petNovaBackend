@@ -6,5 +6,12 @@ import lombok.Data;
 @Data
 @Builder
 public class AuthResponse {
-    private String token;  // Token JWT generado
+    private String displayName;
+    private String email;
+    private String idToken;
+    private String refreshToken;
+    private long expiresIn;
+    private boolean registered;
+    private String kind;
+    private String localId;
 }
