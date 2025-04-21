@@ -11,7 +11,6 @@ import com.codesoftlution.petNova.user_microservice.respositories.IRoleRepositor
 import com.codesoftlution.petNova.user_microservice.respositories.IUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -34,9 +33,6 @@ public class AuthService {
 
     @Autowired
     OfficeFeignClient officeFeignClient;
-
-    @Value("${jwt.expiration}")
-    private long jwtExpiration;
 
     public AuthResponse register(RegisterRequest request) {
         Long officeIdFound = null;
@@ -74,7 +70,7 @@ public class AuthService {
         userRepository.save(user);
         var jwtToken = jwtService.generateToken(user);
         return AuthResponse.builder()
-                .idToken(jwtToken)
+                .token(jwtToken)
                 .build();
     }
 
@@ -88,16 +84,8 @@ public class AuthService {
         var user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "USUARIO NO ENCONTRADO"));
         var jwtToken = jwtService.generateToken(user);
-        var jwtRefreshToken = jwtService.generateRefreshToken(user);
         return AuthResponse.builder()
-                .displayName(user.getName())
-                .email(user.getEmail())
-                .registered(user.isActive())
-                .expiresIn(jwtExpiration)
-                .idToken(jwtToken)
-                .refreshToken(jwtRefreshToken)
-                .kind("identitytoolkit#VerifyPasswordResponse")
-                .localId("qmt6dRyipIad8UCc0QpMV2MENSy1")
+                .token(jwtToken)
                 .build();
     }
 
@@ -106,10 +94,6 @@ public class AuthService {
         var userFound = userRepository.findByUsernameAndActive(username, true)
                 .orElseThrow(() -> new RuntimeException("USUARIO NO ENCONTRADO"));
         return jwtService.isTokenValid(token, userFound);
-    }
 
-    public long getExpirationTime() {
-        return this.jwtExpiration;
     }
-
 }
