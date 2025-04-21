@@ -2,6 +2,7 @@ package com.codesoftlution.petNova.api_gateway_petNova.config;
 
 import com.codesoftlution.petNova.api_gateway_petNova.security.JwtTokenProvider;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.server.ServerWebExchange;
@@ -20,6 +21,11 @@ public class JwtAuthenticationFilter implements WebFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
+
+        if (request.getMethod() == HttpMethod.OPTIONS) {
+            return chain.filter(exchange);
+        }
+
         String token = resolveToken(request);
 
         // Permitir que las rutas públicas pasen sin autenticación
