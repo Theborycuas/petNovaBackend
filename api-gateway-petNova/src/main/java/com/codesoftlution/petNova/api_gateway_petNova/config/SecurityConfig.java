@@ -11,7 +11,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebFluxSecurity
@@ -50,9 +50,9 @@ public class SecurityConfig {
 
     private CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
-        config.setAllowedMethods(Arrays.asList("*"));
-        config.setAllowedHeaders(Arrays.asList("*"));
+        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedMethods(List.of("*"));
+        config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
         config.addExposedHeader("Authorization");
         config.setMaxAge(3600L);
