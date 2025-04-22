@@ -16,7 +16,6 @@ import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("apiPetNova/offices")
-@CrossOrigin("*")
 public class OfficeController {
     @Autowired
     private OfficeService officeService;
@@ -47,12 +46,12 @@ public class OfficeController {
     }
 
     @RequestMapping(value = "/listAllOffice", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity listAllOffice() {
+    public ResponseEntity<?> listAllOffice() {
         try {
             log.info("START OFFICE LIST ALL OFICE");
             List<OfficeModel> officeModelList = officeService.getAllOffices();
             log.info("END OFFICE LIST ALL OFICE");
-            return new ResponseEntity(officeModelList, HttpStatus.OK);
+            return new ResponseEntity<>(officeModelList, HttpStatus.OK);
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
