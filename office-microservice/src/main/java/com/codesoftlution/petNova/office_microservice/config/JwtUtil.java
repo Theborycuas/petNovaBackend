@@ -1,4 +1,4 @@
-package com.codesoftlution.petNova.api_gateway_petNova.security;
+package com.codesoftlution.petNova.office_microservice.config;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -7,21 +7,23 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
 import java.security.Key;
+import java.util.List;
 
 @Component
-public class JwtTokenProvider {
+public class JwtUtil {
 
     @Value("${jwt.secret}")
     private String jwtSecret;
 
-    @Value("${jwt.expiration}")
-    private long jwtExpiration;
+    private static final SecretKey SECRET_KEY = Keys.hmacShaKeyFor("3uilvBItlYg08UumSc1gL4nSnEg3bjHa1qB27Vcp2tU=".getBytes());
+    private static final long EXPIRATION_TIME = 86400000; // 24 horas
 
     public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder()
-                    .setSigningKey(getSignInKey())
+                    .setSigningKey(getSignInKey()) // Usa la clave correctamente decodificada
                     .build()
                     .parseClaimsJws(token);
             return true;
@@ -30,7 +32,7 @@ public class JwtTokenProvider {
         }
     }
 
-    public String getUsernameFromToken(String token) {
+    public String extractUsername(String token) {
         return extractAllClaims(token).getSubject();
     }
 
@@ -52,6 +54,7 @@ public class JwtTokenProvider {
                 .parseClaimsJws(token)
                 .getBody();
     }
+
 
     private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);

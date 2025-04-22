@@ -103,4 +103,11 @@ public class OfficeController {
         }
     }
 
+    @RequestMapping(value = "/getOk", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<?> getOk() {
+        return new ResponseEntity<>("OK", HttpStatus.OK);
+    }
+
+
+
 }

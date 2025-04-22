@@ -5,10 +5,19 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class JwtAuthenticationFilter implements WebFilter {
 
@@ -26,22 +35,35 @@ public class JwtAuthenticationFilter implements WebFilter {
             return chain.filter(exchange);
         }
 
-        String token = resolveToken(request);
-
-        // Permitir que las rutas públicas pasen sin autenticación
+        // 2. Permitir rutas públicas
         if (!requiresAuthentication(request.getPath().toString())) {
             return chain.filter(exchange);
         }
 
-        if (token != null && jwtTokenProvider.validateToken(token)) {
-            String username = jwtTokenProvider.getUsernameFromToken(token);
-            // Aquí puedes añadir la autenticación al contexto si es necesario
-        } else {
+        String token = resolveToken(request);
+        if (token == null || !jwtTokenProvider.validateToken(token)) {
             exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
             return exchange.getResponse().setComplete();
         }
 
-        return chain.filter(exchange);
+        return Mono.just(token)
+                .flatMap(t -> {
+                    String username = jwtTokenProvider.getUsernameFromToken(t);
+                    String role = jwtTokenProvider.extractRole(token);
+
+                    List<GrantedAuthority> authorities = Collections.singletonList(
+                            new SimpleGrantedAuthority("ROLE_" + role) // Prefijo "ROLE_" requerido para hasRole()
+                    );
+
+                    Authentication authentication = new UsernamePasswordAuthenticationToken(
+                            username,
+                            null,
+                            authorities
+                    );
+
+                    return chain.filter(exchange)
+                            .contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication));
+                });
     }
 
     // Método para verificar si la ruta requiere autenticación
