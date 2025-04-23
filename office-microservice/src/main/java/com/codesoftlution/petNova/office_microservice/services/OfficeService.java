@@ -2,6 +2,7 @@ package com.codesoftlution.petNova.office_microservice.services;
 
 
 import com.codesoftlution.petNova.office_microservice.clientsfeign.UserFeignClient;
+import com.codesoftlution.petNova.office_microservice.config.JwtUtil;
 import com.codesoftlution.petNova.office_microservice.dtos.UserDTO;
 import com.codesoftlution.petNova.office_microservice.models.OfficeModel;
 import com.codesoftlution.petNova.office_microservice.repositories.IOfficeRepository;
@@ -11,6 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +24,9 @@ public class OfficeService {
 
     @Autowired
     private UserFeignClient userFeignClient;
+
+    @Autowired
+    private JwtUtil jwtUtil;
 
 /*    @Autowired
     private IUserRepository userRepository;*/
@@ -36,11 +42,26 @@ public class OfficeService {
 
 
 
-    public OfficeModel officeRegister(String token, Long userId, OfficeModel officeModel, Long veterinarioId) {
+    public OfficeModel officeRegister(String token, OfficeModel officeModel) {
+        String roleSuperAdmin = jwtUtil.extractRole(token);
+
+        if(roleSuperAdmin.equals("SUPER_ADMIN")){
+            officeModel.setTenantId(1L);
+            officeModel.setCreatedAt(LocalDateTime.now());
+            officeModel.setSubscriptionStartDate(LocalDate.now());
+
+            if(officeModel.getCurrentPlan().equals(1L)){
+                officeModel.setSubscriptionEndDate(LocalDate.now().plusDays(30));
+            } else {
+                officeModel.setSubscriptionEndDate(LocalDate.now().plusDays(30));
+            }
+            return officeRepository.save(officeModel);
+        }
+        throw new RuntimeException("No tienes permisos para registrar el Offices");
 
         //Validar que exista el ususario que crea el consultorio
 
-        UserDTO userDTO = userFeignClient.getUserById("Bearer " + token, userId);
+       /* UserDTO userDTO = userFeignClient.getUserById("Bearer " + token, userId);
 
         if(!"SUPER_ADMIN".equalsIgnoreCase(userDTO.getRollName()) &&
                 !"VETERINARIO".equalsIgnoreCase(userDTO.getRollName()) &&
@@ -67,7 +88,7 @@ public class OfficeService {
         }
 
         //Guardar y retornar el Consultorio
-        return officeRepository.save(officeModel);
+        return officeRepository.save(officeModel);*/
     }
 
     public List<OfficeModel> getAllOffices() {
@@ -94,7 +115,7 @@ public class OfficeService {
         Optional.ofNullable(officeModel.getName()).ifPresent(consultorioEncontrado::setName);
         Optional.ofNullable(officeModel.getPhoneNumber()).ifPresent(consultorioEncontrado::setPhoneNumber);
         Optional.ofNullable(officeModel.getAddress()).ifPresent(consultorioEncontrado::setAddress);
-        Optional.ofNullable(officeModel.getLinkLogoPhoto()).ifPresent(consultorioEncontrado::setLinkLogoPhoto);
+        Optional.ofNullable(officeModel.getLogoUrl()).ifPresent(consultorioEncontrado::setLogoUrl);
 
         return officeRepository.save(consultorioEncontrado);
     }

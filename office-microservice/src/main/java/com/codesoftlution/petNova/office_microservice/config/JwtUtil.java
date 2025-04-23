@@ -37,7 +37,13 @@ public class JwtUtil {
     }
 
     public String extractRole(String token) {
-        Claims claims = extractAllClaims(token);
+
+        String tokenNoBearer  = token
+                .replaceFirst("(?i)^Bearer ", "")  // elimina “Bearer ” (case‐insensitive)
+                .trim();                           // quita espacios antes o después
+
+
+        Claims claims = extractAllClaims(tokenNoBearer);
         String role = claims.get("role", String.class); // Extrae el claim como String
 
         if (role == null || role.isEmpty()) {
