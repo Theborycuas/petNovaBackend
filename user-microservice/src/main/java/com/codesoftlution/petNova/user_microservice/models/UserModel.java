@@ -40,6 +40,7 @@ public class UserModel implements UserDetails{
     @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)
     private RoleModel role;
+
     private String phoneNumber;
 
     @Column(nullable = false)

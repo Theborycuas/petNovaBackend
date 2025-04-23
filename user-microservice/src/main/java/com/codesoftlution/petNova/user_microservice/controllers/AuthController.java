@@ -1,13 +1,11 @@
 package com.codesoftlution.petNova.user_microservice.controllers;
 
-import com.codesoftlution.petNova.user_microservice.dtos.AuthRequest;
-import com.codesoftlution.petNova.user_microservice.dtos.AuthResponse;
+import com.codesoftlution.petNova.user_microservice.request.AuthRequest;
+import com.codesoftlution.petNova.user_microservice.response.AuthResponse;
 import com.codesoftlution.petNova.user_microservice.dtos.RegisterRequest;
 import com.codesoftlution.petNova.user_microservice.response.AuthSesionResponse;
 import com.codesoftlution.petNova.user_microservice.services.AuthService;
-import com.codesoftlution.petNova.user_microservice.services.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @Entity
@@ -30,4 +33,26 @@ public class OfficeModel {
 
     //Veterinario Asociado al consultorio
     private Long veterinarioId;
+
+    private String emailContacto;
+
+    private String nombreAdministrador;
+
+    private String identificacionTributaria;
+
+    @Column(updatable = false)
+    private LocalDateTime fechaRegistro;
+    private LocalDateTime fechaUltimaActualizacion;
+
+    // Suscripción actual
+    private Long planActual;
+
+    private LocalDate fechaInicioSuscripcion;
+    private LocalDate fechaFinSuscripcion;
+
+    // Configuraciones específicas del tenant
+    private String zonaHoraria;
+    private String idiomaPreferido;
+    private String moneda;
+    private boolean permiteAgendamientoOnline;
 }
