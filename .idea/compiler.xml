@@ -15,10 +15,10 @@
         <module name="user-microservice" />
         <module name="medicalHistory-microservice" />
         <module name="pet-microservice" />
+        <module name="tenant-microservice" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="tenant-microservice" target="21" />
       <module name="tenant-microservive" target="21" />
     </bytecodeTargetLevel>
   </component>
