@@ -73,8 +73,4 @@ public class OfficeModel {
     private String officeHours;
     private String locationCoordinates;
 
-
-    //private String serviceList;
-
-    //private String metadata;
 }
