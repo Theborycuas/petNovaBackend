@@ -3,6 +3,7 @@ package com.codesoftlution.petNova.office_microservice.models;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Type;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -17,6 +18,9 @@ public class OfficeModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, updatable = false)
+    private Long tenantId;
+
     @Column(nullable = false, unique = true)
     private String name;
 
@@ -26,33 +30,51 @@ public class OfficeModel {
     @Column(nullable = false, unique = true)
     private String phoneNumber;
 
-    @Column(columnDefinition = "TEXT")
-    private String linkLogoPhoto;
+    @Column(nullable = false, unique = true)
+    private String taxId;
 
+    @Column(columnDefinition = "TEXT")
+    private String logoUrl;
+
+    @Column(nullable = false)
     private boolean active;
 
-    //Veterinario Asociado al consultorio
-    private Long veterinarioId;
+    @Column(nullable = false, unique = true)
+    private String contactEmail;
 
-    private String emailContacto;
+    @Column(nullable = false)
+    private boolean emailVerified = false;
 
-    private String nombreAdministrador;
+    @Column(nullable = false)
+    private String managerName;
 
-    private String identificacionTributaria;
+    @Column(nullable = false, unique = true)
+    private String managerPhone;
+
+    @Column(nullable = false, unique = true)
+    private String managerEmail;
 
     @Column(updatable = false)
-    private LocalDateTime fechaRegistro;
-    private LocalDateTime fechaUltimaActualizacion;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
-    // Suscripción actual
-    private Long planActual;
+    @Column(nullable = false)
+    private Long currentPlan;
 
-    private LocalDate fechaInicioSuscripcion;
-    private LocalDate fechaFinSuscripcion;
+    @Column(nullable = false)
+    private LocalDate subscriptionStartDate;
 
-    // Configuraciones específicas del tenant
-    private String zonaHoraria;
-    private String idiomaPreferido;
-    private String moneda;
-    private boolean permiteAgendamientoOnline;
+    @Column(nullable = false)
+    private LocalDate subscriptionEndDate;
+
+    private String preferredLanguage;
+    private String timeZone;
+    private boolean allowsOnlineBooking;
+    private String officeHours;
+    private String locationCoordinates;
+
+
+    //private String serviceList;
+
+    //private String metadata;
 }

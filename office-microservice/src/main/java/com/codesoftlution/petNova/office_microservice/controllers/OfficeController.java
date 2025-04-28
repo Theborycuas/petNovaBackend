@@ -28,16 +28,14 @@ public class OfficeController {
     @RequestMapping(value = "/resgisterOffice", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity resgisterOffice(
             @RequestHeader("Authorization") String token,
-            @Valid @RequestParam Long userId,
-            @Valid @RequestBody OfficeModel officeModel,
-            @RequestParam(required = false) Long veterinarioId
+            @Valid @RequestBody OfficeModel officeModel
     ) {
         try {
             log.info("START OFFICE REGISTER");
             if(!officeService.validateuserTokenActive(token)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("TOKEN INVALIDO");
             }
-            OfficeModel officeModel1 = officeService.officeRegister(token, userId, officeModel, veterinarioId);
+            OfficeModel officeModel1 = officeService.officeRegister(token, officeModel);
             log.info("END OFFICE REGISTER");
             return new ResponseEntity(officeModel1, HttpStatus.OK);
         } catch (Exception e) {
