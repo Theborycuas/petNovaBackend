@@ -12,6 +12,7 @@
         <option value="$PROJECT_DIR$/appointment-microservice/pom.xml" />
         <option value="$PROJECT_DIR$/medicalHistory-microservice/pom.xml" />
         <option value="$PROJECT_DIR$/discovery-eureka-microservice/pom.xml" />
+        <option value="$PROJECT_DIR$/tenant-microservive/pom.xml" />
       </list>
     </option>
   </component>

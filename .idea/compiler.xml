@@ -16,6 +16,15 @@
         <module name="medicalHistory-microservice" />
         <module name="pet-microservice" />
       </profile>
+      <profile name="Annotation profile for tenant-microservive" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/unknown/lombok-unknown.jar" />
+        </processorPath>
+        <module name="tenant-microservive" />
+      </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
@@ -27,6 +36,7 @@
       <module name="medicalHistory-microservice" options="-parameters" />
       <module name="office-microservice" options="-parameters" />
       <module name="pet-microservice" options="-parameters" />
+      <module name="tenant-microservive" options="-parameters" />
       <module name="user-microservice" options="-parameters" />
     </option>
   </component>
