@@ -10,7 +10,6 @@
         <module name="config-server" />
         <module name="appointment-microservice" />
         <module name="discovery-eureka-microservice" />
-        <module name="tenant-microservive" />
         <module name="api-gateway-petNova" />
         <module name="office-microservice" />
         <module name="user-microservice" />
@@ -18,6 +17,10 @@
         <module name="pet-microservice" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="tenant-microservice" target="21" />
+      <module name="tenant-microservive" target="21" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
@@ -28,6 +31,7 @@
       <module name="medicalHistory-microservice" options="-parameters" />
       <module name="office-microservice" options="-parameters" />
       <module name="pet-microservice" options="-parameters" />
+      <module name="tenant-microservice" options="-parameters" />
       <module name="tenant-microservive" options="-parameters" />
       <module name="user-microservice" options="-parameters" />
     </option>

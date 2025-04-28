@@ -30,8 +30,7 @@ public class SecurityConfig {
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers(
-                                "/apiPetNova/auth/**",
-                                "/apiPetNova/users/**"/*,
+                                "/apiPetNova/auth/**"/*,
                                 "/apiPetNova/public/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
