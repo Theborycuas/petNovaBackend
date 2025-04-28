@@ -15,5 +15,4 @@ public class TenantControllers {
     public ResponseEntity<?> getOk() {
         return new ResponseEntity<>("OK", HttpStatus.OK);
     }
-
 }
