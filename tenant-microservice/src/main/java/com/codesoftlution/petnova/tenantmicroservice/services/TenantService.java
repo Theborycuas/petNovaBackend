@@ -22,12 +22,10 @@ public class TenantService {
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public TenantModel createTenant(TenantModel tenantModel) {
 
-            tenantModel.setPlanId(tenantModel.getPlanId());
             tenantModel.setCreatedAt(LocalDateTime.now());
             tenantModel.setSubscriptionStartDate(LocalDate.now());
             tenantModel.setSubscriptionEndDate(LocalDate.now().plusDays(30));
             tenantModel.setBillingCycle("MONTHLY");
-            tenantModel.setCurrency("USD");
             tenantModel.setActive(false);
             tenantModel.setEmailVerified(false);
             return tenantRepository.save(tenantModel);
