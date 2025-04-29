@@ -9,6 +9,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.print.attribute.standard.Media;
+import java.util.List;
 import java.util.logging.Logger;
 
 @RestController
@@ -27,13 +29,19 @@ public class TenantControllers {
             ){
         try {
             log.info("START CREATE TENANT");
-            tenantService.createTenant(token, tenantModel);
+            tenantService.createTenant(tenantModel);
             log.info("END CREATE TENANT");
             return new ResponseEntity<>(tenantModel, HttpStatus.CREATED);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
 
+    }
+
+    @RequestMapping(value = "/getAllTenants", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<?> getAllTenants() {
+        List<TenantModel> allTenants = tenantService.getAllTenants();
+        return new ResponseEntity<>(allTenants, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/getOk", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
