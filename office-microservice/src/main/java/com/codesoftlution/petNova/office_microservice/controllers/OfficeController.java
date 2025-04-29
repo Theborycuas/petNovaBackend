@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -43,15 +42,11 @@ public class OfficeController {
 
     @RequestMapping(value = "/listAllOffice", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> listAllOffice() {
-        try {
-            log.info("START OFFICE LIST ALL OFICE");
-            List<OfficeModel> officeModelList = officeService.getAllOffices();
-            log.info("END OFFICE LIST ALL OFICE");
-            return new ResponseEntity<>(officeModelList, HttpStatus.OK);
+        log.info("START OFFICE LIST ALL OFICE");
+        List<OfficeModel> officeModelList = officeService.getAllOffices();
+        log.info("END OFFICE LIST ALL OFICE");
+        return new ResponseEntity<>(officeModelList, HttpStatus.OK);
 
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
     }
 
     @RequestMapping(value = "/getOfficeById/{officeId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -87,13 +82,13 @@ public class OfficeController {
     public ResponseEntity deleteOfficeById(
             @Valid @PathVariable Long officeId,
             @Valid @RequestParam Long userId
-    ){
+    ) {
         try {
             log.info("START OFFICE DELETE BY ID");
             OfficeModel officeModelEncontrado = officeService.deleteOffice(officeId, userId);
             log.info("END OFFICE DELETE BY ID");
             return new ResponseEntity(officeModelEncontrado, HttpStatus.OK);
-        }catch (Exception e){
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
@@ -102,7 +97,6 @@ public class OfficeController {
     public ResponseEntity<?> getOk() {
         return new ResponseEntity<>("OK", HttpStatus.OK);
     }
-
 
 
 }

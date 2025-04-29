@@ -28,7 +28,7 @@ public class TenantService {
             tenantModel.setSubscriptionEndDate(LocalDate.now().plusDays(30));
             tenantModel.setBillingCycle("MONTHLY");
             tenantModel.setCurrency("USD");
-            tenantModel.setStatus(false);
+            tenantModel.setActive(false);
             tenantModel.setEmailVerified(false);
             return tenantRepository.save(tenantModel);
     }

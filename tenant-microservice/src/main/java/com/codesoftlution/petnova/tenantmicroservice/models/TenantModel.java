@@ -42,7 +42,7 @@ public class TenantModel {
     private String currency;
 
     @Column(nullable = false)
-    private boolean status;
+    private boolean active;
 
     @Column(nullable = false)
     private boolean emailVerified = false;
