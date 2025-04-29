@@ -32,9 +32,6 @@ public class OfficeController {
     ) {
         try {
             log.info("START OFFICE REGISTER");
-            if(!officeService.validateuserTokenActive(token)) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("TOKEN INVALIDO");
-            }
             OfficeModel officeModel1 = officeService.officeRegister(token, officeModel);
             log.info("END OFFICE REGISTER");
             return new ResponseEntity(officeModel1, HttpStatus.OK);

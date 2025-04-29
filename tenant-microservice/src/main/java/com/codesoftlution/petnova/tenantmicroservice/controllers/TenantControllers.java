@@ -7,10 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.logging.Logger;
 
@@ -25,11 +22,12 @@ public class TenantControllers {
 
     @RequestMapping(value = "/createTenant", method = RequestMethod.POST, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> createTenant(
+            @RequestHeader("Authorization") String token,
             @Valid @RequestBody TenantModel tenantModel
             ){
         try {
             log.info("START CREATE TENANT");
-            tenantService.createTenant(tenantModel);
+            tenantService.createTenant(token, tenantModel);
             log.info("END CREATE TENANT");
             return new ResponseEntity<>(tenantModel, HttpStatus.CREATED);
         } catch (Exception e) {

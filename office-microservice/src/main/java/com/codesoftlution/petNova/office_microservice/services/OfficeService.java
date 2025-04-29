@@ -28,20 +28,6 @@ public class OfficeService {
     @Autowired
     private JwtUtil jwtUtil;
 
-/*    @Autowired
-    private IUserRepository userRepository;*/
-
-    public boolean validateuserTokenActive(String token) {
-        ResponseEntity<AuthSesionResponse> response = userFeignClient
-                .validateTokenActive(token);
-        if(response.getStatusCode().is2xxSuccessful() && Boolean.TRUE.equals(response.getBody().isSuccess())) {
-            return true;
-        }
-        return false;
-    }
-
-
-
     public OfficeModel officeRegister(String token, OfficeModel officeModel) {
         String roleSuperAdmin = jwtUtil.extractRole(token);
 
