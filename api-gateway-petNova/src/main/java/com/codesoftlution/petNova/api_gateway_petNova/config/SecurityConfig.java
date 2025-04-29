@@ -31,7 +31,7 @@ public class SecurityConfig {
                 .authorizeExchange(exchanges -> exchanges
                         .pathMatchers(
                                 "/apiPetNova/auth/**",
-                                "/apiPetNova/users/**"/*,
+                                "/apiPetNova/tenants/**"/*,
                                 "/apiPetNova/public/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",

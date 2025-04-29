@@ -15,8 +15,12 @@
         <module name="user-microservice" />
         <module name="medicalHistory-microservice" />
         <module name="pet-microservice" />
+        <module name="tenant-microservice" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="tenant-microservive" target="21" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
@@ -27,6 +31,8 @@
       <module name="medicalHistory-microservice" options="-parameters" />
       <module name="office-microservice" options="-parameters" />
       <module name="pet-microservice" options="-parameters" />
+      <module name="tenant-microservice" options="-parameters" />
+      <module name="tenant-microservive" options="-parameters" />
       <module name="user-microservice" options="-parameters" />
     </option>
   </component>

@@ -10,6 +10,7 @@ import com.codesoftlution.petNova.office_microservice.response.AuthSesionRespons
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -28,20 +29,7 @@ public class OfficeService {
     @Autowired
     private JwtUtil jwtUtil;
 
-/*    @Autowired
-    private IUserRepository userRepository;*/
-
-    public boolean validateuserTokenActive(String token) {
-        ResponseEntity<AuthSesionResponse> response = userFeignClient
-                .validateTokenActive(token);
-        if(response.getStatusCode().is2xxSuccessful() && Boolean.TRUE.equals(response.getBody().isSuccess())) {
-            return true;
-        }
-        return false;
-    }
-
-
-
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public OfficeModel officeRegister(String token, OfficeModel officeModel) {
         String roleSuperAdmin = jwtUtil.extractRole(token);
 
@@ -91,6 +79,7 @@ public class OfficeService {
         return officeRepository.save(officeModel);*/
     }
 
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public List<OfficeModel> getAllOffices() {
         return officeRepository.findAll();
     }

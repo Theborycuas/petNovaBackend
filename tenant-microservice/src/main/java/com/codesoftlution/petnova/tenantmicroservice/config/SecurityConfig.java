@@ -1,5 +1,5 @@
 
-package com.codesoftlution.petNova.office_microservice.config;
+package com.codesoftlution.petnova.tenantmicroservice.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
