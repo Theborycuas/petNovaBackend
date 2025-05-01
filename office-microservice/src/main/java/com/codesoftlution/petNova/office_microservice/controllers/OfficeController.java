@@ -32,9 +32,9 @@ public class OfficeController {
     ) {
         try {
             log.info("START OFFICE REGISTER");
-            OfficeModel officeModel1 = officeService.officeRegister(token, officeModel);
+            OfficeModel savedOffice = officeService.officeRegister(token, officeModel);
             log.info("END OFFICE REGISTER");
-            return new ResponseEntity(officeModel1, HttpStatus.OK);
+            return new ResponseEntity(savedOffice, HttpStatus.OK);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }

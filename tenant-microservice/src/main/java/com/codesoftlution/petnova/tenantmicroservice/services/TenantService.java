@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TenantService {
@@ -34,5 +35,9 @@ public class TenantService {
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     public List<TenantModel> getAllTenants() {
         return tenantRepository.findAll();
+    }
+
+    public Optional<TenantModel> getTenantById(Long id) {
+        return tenantRepository.findById(id);
     }
 }
