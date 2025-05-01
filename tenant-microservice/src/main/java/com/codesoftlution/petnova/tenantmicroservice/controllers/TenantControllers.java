@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public class TenantControllers {
 
     Logger log = Logger.getLogger(TenantControllers.class.getName());
 
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @RequestMapping(value = "/createTenant", method = RequestMethod.POST, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> createTenant(
             @RequestHeader("Authorization") String token,
@@ -33,6 +35,7 @@ public class TenantControllers {
         return new ResponseEntity<>(savedTenant, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @RequestMapping(value = "/getAllTenants", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> getAllTenants() {
         log.info("START GET ALL TENANTS");
@@ -41,6 +44,7 @@ public class TenantControllers {
         return new ResponseEntity<>(allTenants, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'TENANT_ADMIN')")
     @RequestMapping(value = "/getTenantById/{tenantId}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> getTenantById(
             @PathVariable Long tenantId

@@ -20,7 +20,6 @@ public class TenantService {
     @Autowired
     private JwtUtil jwtUtil;
 
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public TenantModel createTenant(TenantModel tenantModel) {
 
             tenantModel.setCreatedAt(LocalDateTime.now());
@@ -32,7 +31,6 @@ public class TenantService {
             return tenantRepository.save(tenantModel);
     }
 
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public List<TenantModel> getAllTenants() {
         return tenantRepository.findAll();
     }
