@@ -6,7 +6,6 @@ import com.codesoftlution.petNova.office_microservice.config.JwtUtil;
 import com.codesoftlution.petNova.office_microservice.models.OfficeModel;
 import com.codesoftlution.petNova.office_microservice.repositories.IOfficeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -109,19 +108,12 @@ public class OfficeService {
         return officeRepository.save(consultorioEncontrado);
     }
 
-    public OfficeModel deleteOffice(Long officeId, Long userId) {
-        /*UserModel userModel = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Usuario no Encontrado"));
+    public OfficeModel deleteOfficeById(Long officeId) {
 
-        //Validar que se tenga el Rol para crear consultorio
-        if(!"VETERINARIO".equalsIgnoreCase(userModel.getRole().getRoleName()) && !"OFFICE_ADMIN".equalsIgnoreCase(userModel.getRole().getRoleName())){
-            throw new RuntimeException("Solo un administrador o un veterinario pueden registrar consultorios.");
-        }*/
-
-        OfficeModel consultorioEncontrado = officeRepository.findById(officeId)
+        OfficeModel consultorioFound = officeRepository.findById(officeId)
                 .orElseThrow(() -> new RuntimeException("Consultorio no Encontrado"));
+        consultorioFound.softDelete();
 
-        consultorioEncontrado.setActive(false);
-        return officeRepository.save(consultorioEncontrado);
+        return officeRepository.save(consultorioFound);
     }
 }

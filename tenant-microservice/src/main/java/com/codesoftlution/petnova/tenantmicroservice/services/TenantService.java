@@ -38,4 +38,14 @@ public class TenantService {
     public Optional<TenantModel> getTenantById(Long id) {
         return tenantRepository.findById(id);
     }
+
+    public TenantModel deleteTenantById(Long tenantId) {
+
+        TenantModel tenantFound = tenantRepository.findById(tenantId)
+                .orElseThrow(() -> new RuntimeException("Tenant not found"));
+        tenantFound.softDelete();
+
+        return tenantRepository.save(tenantFound);
+
+    }
 }
