@@ -3,13 +3,9 @@ package com.codesoftlution.petNova.office_microservice.services;
 
 import com.codesoftlution.petNova.office_microservice.clientsfeign.UserFeignClient;
 import com.codesoftlution.petNova.office_microservice.config.JwtUtil;
-import com.codesoftlution.petNova.office_microservice.dtos.UserDTO;
 import com.codesoftlution.petNova.office_microservice.models.OfficeModel;
 import com.codesoftlution.petNova.office_microservice.repositories.IOfficeRepository;
-import com.codesoftlution.petNova.office_microservice.response.AuthSesionResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +25,6 @@ public class OfficeService {
     @Autowired
     private JwtUtil jwtUtil;
 
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public OfficeModel officeRegister(String token, OfficeModel officeModel) {
         String roleSuperAdmin = jwtUtil.extractRole(token);
 
@@ -79,7 +74,6 @@ public class OfficeService {
         return officeRepository.save(officeModel);*/
     }
 
-    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public List<OfficeModel> getAllOffices() {
         return officeRepository.findAll();
     }
@@ -87,6 +81,12 @@ public class OfficeService {
     public Optional<OfficeModel> getOfficeById(Long officeId) {
         return officeRepository.findById(officeId);
     }
+
+
+    public List<OfficeModel> getOfficesByTenantId(Long tenantId) {
+        return officeRepository.findByTenantId(tenantId);
+    }
+
 
     public OfficeModel updateOffice(Long officeId, Long userId, OfficeModel officeModel) {
 
