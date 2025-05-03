@@ -9,5 +9,6 @@ public interface IOfficeRepository extends JpaRepository<OfficeModel, Long> {
     boolean existsByName(String name);
     boolean existsByContactPhone(String contactPhone);
 
-    List<OfficeModel> findByTenantId(Long tenantId);
+    List<OfficeModel> findAllByDeletedAtIsNull();
+    List<OfficeModel> findAllByTenantIdAndDeletedAtIsNull(Long tenantId);
 }

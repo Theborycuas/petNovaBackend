@@ -27,12 +27,12 @@ public class OfficeService {
     public OfficeModel officeRegister(String token, OfficeModel officeModel) {
         String roleSuperAdmin = jwtUtil.extractRole(token);
 
-        if(roleSuperAdmin.equals("SUPER_ADMIN")){
+        if (roleSuperAdmin.equals("SUPER_ADMIN")) {
             officeModel.setTenantId(1L);
             officeModel.setCreatedAt(LocalDateTime.now());
             officeModel.setSubscriptionStartDate(LocalDate.now());
 
-            if(officeModel.getCurrentPlan().equals(1L)){
+            if (officeModel.getCurrentPlan().equals(1L)) {
                 officeModel.setSubscriptionEndDate(LocalDate.now().plusDays(30));
             } else {
                 officeModel.setSubscriptionEndDate(LocalDate.now().plusDays(30));
@@ -74,7 +74,7 @@ public class OfficeService {
     }
 
     public List<OfficeModel> getAllOffices() {
-        return officeRepository.findAll();
+        return officeRepository.findAllByDeletedAtIsNull();
     }
 
     public Optional<OfficeModel> getOfficeById(Long officeId) {
@@ -83,7 +83,7 @@ public class OfficeService {
 
 
     public List<OfficeModel> getOfficesByTenantId(Long tenantId) {
-        return officeRepository.findByTenantId(tenantId);
+        return officeRepository.findAllByTenantIdAndDeletedAtIsNull(tenantId);
     }
 
 
@@ -116,4 +116,14 @@ public class OfficeService {
 
         return officeRepository.save(consultorioFound);
     }
+
+    public void deleteOfficeByTenantId(Long tenantId) {
+        List<OfficeModel> consultoriosEncontrados = officeRepository.findAllByTenantIdAndDeletedAtIsNull(tenantId);
+
+        for (OfficeModel consultorio : consultoriosEncontrados) {
+            consultorio.softDelete();
+            officeRepository.save(consultorio);
+        }
+    }
+
 }

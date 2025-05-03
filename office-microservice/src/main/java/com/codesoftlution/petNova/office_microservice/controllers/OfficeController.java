@@ -96,10 +96,23 @@ public class OfficeController {
     public ResponseEntity<?> deleteOfficeById(
             @Valid @PathVariable Long officeId
     ) {
-            log.info("START OFFICE DELETE BY ID");
-            OfficeModel officeModelEncontrado = officeService.deleteOfficeById(officeId);
-            log.info("END OFFICE DELETE BY ID");
-            return new ResponseEntity<>(officeModelEncontrado, HttpStatus.OK);
+        log.info("START OFFICE DELETE BY ID");
+        OfficeModel officeModelEncontrado = officeService.deleteOfficeById(officeId);
+        log.info("END OFFICE DELETE BY ID");
+        return new ResponseEntity<>(officeModelEncontrado, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN')")
+    @RequestMapping(value = "deleteOfficeByTenantId/{tenantId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> deleteOfficeByTenantId(
+            @Valid @PathVariable Long tenantId
+    ) {
+        log.info("START DELETE OFFICES BY TENANT ID");
+        officeService.deleteOfficeByTenantId(tenantId);
+        log.info("END DELETE OFFICES BY TENANT ID");
+
+        return new ResponseEntity<>(true, HttpStatus.OK);
+
     }
 
     @RequestMapping(value = "/getOk", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
