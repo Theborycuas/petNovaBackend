@@ -56,6 +56,18 @@ public class TenantControllers {
         return new ResponseEntity<>(tenantModel, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN')")
+    @RequestMapping(value = "/deleteTenantById/{tenantId}", method = RequestMethod.POST, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<?> deleteTenantById(
+            @RequestHeader("Authorization")  String token,
+            @Valid @PathVariable Long tenantId
+    ){
+        log.info("START DELETE TENANT BY ID");
+        boolean tenantDeleted = tenantService.deleteTenantById(token, tenantId);
+        log.info("END DELETE TENANT BY ID");
+        return new ResponseEntity<>(tenantDeleted, HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/getOk", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> getOk() {
         return new ResponseEntity<>("OK", HttpStatus.OK);

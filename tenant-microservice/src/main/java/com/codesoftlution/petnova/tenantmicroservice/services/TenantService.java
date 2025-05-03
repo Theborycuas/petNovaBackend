@@ -1,5 +1,6 @@
 package com.codesoftlution.petnova.tenantmicroservice.services;
 
+import com.codesoftlution.petnova.tenantmicroservice.clientsfeign.OfficeFeignClient;
 import com.codesoftlution.petnova.tenantmicroservice.config.JwtUtil;
 import com.codesoftlution.petnova.tenantmicroservice.models.TenantModel;
 import com.codesoftlution.petnova.tenantmicroservice.repositories.ITenantRepository;
@@ -20,6 +21,9 @@ public class TenantService {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private OfficeFeignClient officeFeignClient;
+
     public TenantModel createTenant(TenantModel tenantModel) {
 
             tenantModel.setCreatedAt(LocalDateTime.now());
@@ -32,10 +36,25 @@ public class TenantService {
     }
 
     public List<TenantModel> getAllTenants() {
-        return tenantRepository.findAll();
+        return tenantRepository.findAllByDeletedAtIsNull();
     }
 
     public Optional<TenantModel> getTenantById(Long id) {
         return tenantRepository.findById(id);
+    }
+
+    public boolean deleteTenantById(String token, Long tenantId) {
+
+        TenantModel tenantFound = tenantRepository.findById(tenantId)
+                .orElseThrow(() -> new RuntimeException("Tenant not found"));
+        boolean officesDeleted = officeFeignClient.deleteOfficeByTenantId(token, tenantId);
+
+        if (!officesDeleted) {
+            throw new RuntimeException("ERROR AL ELIMINAR LOS CONSULTORIOS");
+        }
+        tenantFound.softDelete();
+        tenantRepository.save(tenantFound);
+
+        return true;
     }
 }

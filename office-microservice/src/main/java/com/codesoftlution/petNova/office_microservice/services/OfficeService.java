@@ -6,7 +6,6 @@ import com.codesoftlution.petNova.office_microservice.config.JwtUtil;
 import com.codesoftlution.petNova.office_microservice.models.OfficeModel;
 import com.codesoftlution.petNova.office_microservice.repositories.IOfficeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -28,12 +27,12 @@ public class OfficeService {
     public OfficeModel officeRegister(String token, OfficeModel officeModel) {
         String roleSuperAdmin = jwtUtil.extractRole(token);
 
-        if(roleSuperAdmin.equals("SUPER_ADMIN")){
+        if (roleSuperAdmin.equals("SUPER_ADMIN")) {
             officeModel.setTenantId(1L);
             officeModel.setCreatedAt(LocalDateTime.now());
             officeModel.setSubscriptionStartDate(LocalDate.now());
 
-            if(officeModel.getCurrentPlan().equals(1L)){
+            if (officeModel.getCurrentPlan().equals(1L)) {
                 officeModel.setSubscriptionEndDate(LocalDate.now().plusDays(30));
             } else {
                 officeModel.setSubscriptionEndDate(LocalDate.now().plusDays(30));
@@ -75,7 +74,7 @@ public class OfficeService {
     }
 
     public List<OfficeModel> getAllOffices() {
-        return officeRepository.findAll();
+        return officeRepository.findAllByDeletedAtIsNull();
     }
 
     public Optional<OfficeModel> getOfficeById(Long officeId) {
@@ -84,7 +83,7 @@ public class OfficeService {
 
 
     public List<OfficeModel> getOfficesByTenantId(Long tenantId) {
-        return officeRepository.findByTenantId(tenantId);
+        return officeRepository.findAllByTenantIdAndDeletedAtIsNull(tenantId);
     }
 
 
@@ -109,19 +108,22 @@ public class OfficeService {
         return officeRepository.save(consultorioEncontrado);
     }
 
-    public OfficeModel deleteOffice(Long officeId, Long userId) {
-        /*UserModel userModel = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Usuario no Encontrado"));
+    public OfficeModel deleteOfficeById(Long officeId) {
 
-        //Validar que se tenga el Rol para crear consultorio
-        if(!"VETERINARIO".equalsIgnoreCase(userModel.getRole().getRoleName()) && !"OFFICE_ADMIN".equalsIgnoreCase(userModel.getRole().getRoleName())){
-            throw new RuntimeException("Solo un administrador o un veterinario pueden registrar consultorios.");
-        }*/
-
-        OfficeModel consultorioEncontrado = officeRepository.findById(officeId)
+        OfficeModel consultorioFound = officeRepository.findById(officeId)
                 .orElseThrow(() -> new RuntimeException("Consultorio no Encontrado"));
+        consultorioFound.softDelete();
 
-        consultorioEncontrado.setActive(false);
-        return officeRepository.save(consultorioEncontrado);
+        return officeRepository.save(consultorioFound);
     }
+
+    public void deleteOfficeByTenantId(Long tenantId) {
+        List<OfficeModel> consultoriosEncontrados = officeRepository.findAllByTenantIdAndDeletedAtIsNull(tenantId);
+
+        for (OfficeModel consultorio : consultoriosEncontrados) {
+            consultorio.softDelete();
+            officeRepository.save(consultorio);
+        }
+    }
+
 }
