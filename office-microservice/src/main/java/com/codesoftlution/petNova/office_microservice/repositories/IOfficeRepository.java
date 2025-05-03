@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface IOfficeRepository extends JpaRepository<OfficeModel, Long> {
     boolean existsByName(String name);
-    boolean existsByPhoneNumber(String phoneNumber);
+    boolean existsByContactPhone(String contactPhone);
 
     List<OfficeModel> findByTenantId(Long tenantId);
 }

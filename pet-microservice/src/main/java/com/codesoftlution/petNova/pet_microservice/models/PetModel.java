@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @Entity
@@ -31,5 +33,13 @@ public class PetModel {
 
     @Column(nullable = false)
     private Long userId;
+
+    private LocalDateTime deletedAt;
+    public void softDelete() {
+        this.deletedAt = LocalDateTime.now();
+    }
+    public boolean isDeleted() {
+        return this.deletedAt != null;
+    }
 
 }

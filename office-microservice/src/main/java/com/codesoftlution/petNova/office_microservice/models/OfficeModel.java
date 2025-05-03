@@ -27,8 +27,8 @@ public class OfficeModel {
     @Column(nullable = false)
     private String address;
 
-    @Column(nullable = false, unique = true)
-    private String phoneNumber;
+    @Column(name = "contact_phone", nullable = false, unique = true)
+    private String contactPhone;
 
     @Column(nullable = false, unique = true)
     private String taxId;
@@ -72,5 +72,13 @@ public class OfficeModel {
     private boolean allowsOnlineBooking;
     private String officeHours;
     private String locationCoordinates;
+
+    private LocalDateTime deletedAt;
+    public void softDelete() {
+        this.deletedAt = LocalDateTime.now();
+    }
+    public boolean isDeleted() {
+        return this.deletedAt != null;
+    }
 
 }

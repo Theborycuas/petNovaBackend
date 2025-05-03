@@ -102,7 +102,7 @@ public class OfficeService {
                 .orElseThrow(() -> new RuntimeException("Consultorio no Encontrado"));
 
         Optional.ofNullable(officeModel.getName()).ifPresent(consultorioEncontrado::setName);
-        Optional.ofNullable(officeModel.getPhoneNumber()).ifPresent(consultorioEncontrado::setPhoneNumber);
+        Optional.ofNullable(officeModel.getContactPhone()).ifPresent(consultorioEncontrado::setContactPhone);
         Optional.ofNullable(officeModel.getAddress()).ifPresent(consultorioEncontrado::setAddress);
         Optional.ofNullable(officeModel.getLogoUrl()).ifPresent(consultorioEncontrado::setLogoUrl);
 

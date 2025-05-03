@@ -35,4 +35,12 @@ public class MedicalHistoryModel {
     private String observaciones;
 
     private boolean active;
+
+    private LocalDateTime deletedAt;
+    public void softDelete() {
+        this.deletedAt = LocalDateTime.now();
+    }
+    public boolean isDeleted() {
+        return this.deletedAt != null;
+    }
 }
