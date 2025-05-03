@@ -27,8 +27,8 @@ public class OfficeModel {
     @Column(nullable = false)
     private String address;
 
-    @Column(nullable = false, unique = true)
-    private String phoneNumber;
+    @Column(name = "contact_phone", nullable = false, unique = true)
+    private String contactPhone;
 
     @Column(nullable = false, unique = true)
     private String taxId;
@@ -73,7 +73,6 @@ public class OfficeModel {
     private String officeHours;
     private String locationCoordinates;
 
-    @Column(columnDefinition = "DATETIME")
     private LocalDateTime deletedAt;
     public void softDelete() {
         this.deletedAt = LocalDateTime.now();

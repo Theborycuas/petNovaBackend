@@ -61,7 +61,6 @@ public class TenantModel {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    @Column(columnDefinition = "DATETIME")
     private LocalDateTime deletedAt;
     public void softDelete() {
         this.deletedAt = LocalDateTime.now();

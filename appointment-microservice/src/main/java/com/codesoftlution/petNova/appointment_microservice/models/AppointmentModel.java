@@ -32,7 +32,6 @@ public class AppointmentModel {
 
     private boolean active;
 
-    @Column(columnDefinition = "DATETIME")
     private LocalDateTime deletedAt;
     public void softDelete() {
         this.deletedAt = LocalDateTime.now();
