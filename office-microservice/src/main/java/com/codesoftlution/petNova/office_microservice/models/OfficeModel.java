@@ -73,4 +73,13 @@ public class OfficeModel {
     private String officeHours;
     private String locationCoordinates;
 
+    @Column(columnDefinition = "DATETIME")
+    private LocalDateTime deletedAt;
+    public void softDelete() {
+        this.deletedAt = LocalDateTime.now();
+    }
+    public boolean isDeleted() {
+        return this.deletedAt != null;
+    }
+
 }

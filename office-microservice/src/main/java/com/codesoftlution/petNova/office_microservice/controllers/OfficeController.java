@@ -56,10 +56,10 @@ public class OfficeController {
     @RequestMapping(value = "/getOfficeById/{officeId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getOfficeById(@PathVariable Long officeId) {
         try {
-            log.info("START OFFICE GET OFICE BY ID: ");
+            log.info("START GET OFICE BY ID: ");
             Optional<OfficeModel> officeModel = Optional.ofNullable(officeService.getOfficeById(officeId)
                     .orElseThrow(() -> new RuntimeException("Consultorio no encontrado")));
-            log.info("END OFFICE GET OFICE BY ID: ");
+            log.info("END GET OFICE BY ID: ");
             return new ResponseEntity<>(officeModel, HttpStatus.OK);
 
         } catch (Exception e) {

@@ -31,4 +31,13 @@ public class AppointmentModel {
     private Long veterinarioId;
 
     private boolean active;
+
+    @Column(columnDefinition = "DATETIME")
+    private LocalDateTime deletedAt;
+    public void softDelete() {
+        this.deletedAt = LocalDateTime.now();
+    }
+    public boolean isDeleted() {
+        return this.deletedAt != null;
+    }
 }

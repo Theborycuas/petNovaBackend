@@ -60,5 +60,15 @@ public class TenantModel {
     @Column(updatable = false)
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    @Column(columnDefinition = "DATETIME")
+    private LocalDateTime deletedAt;
+    public void softDelete() {
+        this.deletedAt = LocalDateTime.now();
+    }
+    public boolean isDeleted() {
+        return this.deletedAt != null;
+    }
+
 }
 
