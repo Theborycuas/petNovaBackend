@@ -50,4 +50,9 @@ class SubscriptionServiceImpl implements ISubscriptionService {
     public void delete(Long id) {
         repository.deleteById(id);
     }
+
+
+    public long getNumberOfSubscribers(Long planId) {
+        return repository.countByPlanId(planId);
+    }
 }

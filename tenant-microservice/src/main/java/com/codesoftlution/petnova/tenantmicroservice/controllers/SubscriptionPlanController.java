@@ -2,6 +2,7 @@ package com.codesoftlution.petnova.tenantmicroservice.controllers;
 
 import com.codesoftlution.petnova.tenantmicroservice.interfaces.ISubscriptionPlanService;
 import com.codesoftlution.petnova.tenantmicroservice.models.SubscriptionPlanModel;
+import com.codesoftlution.petnova.tenantmicroservice.mapers.SubscriptionPlanMapper;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +30,7 @@ public class SubscriptionPlanController {
     }
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    @RequestMapping(value = "/create", method = RequestMethod.POST, produces = {MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/createSubscripPlan", method = RequestMethod.POST, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> createPlan(
             @RequestHeader("Authorization") String token,
             @Valid @RequestBody SubscriptionPlanModel plan) {
@@ -40,16 +41,18 @@ public class SubscriptionPlanController {
     }
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    @RequestMapping(value = "/getAll", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/getAllSubscripPlan", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> getAllPlans(@RequestHeader("Authorization") String token) {
         log.info("START GET ALL SUBSCRIPTION PLANS");
         List<SubscriptionPlanModel> plans = subscriptionPlanService.findAll();
+
+
         log.info("END GET ALL SUBSCRIPTION PLANS");
-        return new ResponseEntity<>(plans, HttpStatus.OK);
+        return new ResponseEntity<>(SubscriptionPlanMapper.toSubscriptionPlanDTOList(plans), HttpStatus.OK);
     }
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    @RequestMapping(value = "/get/{id}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/getSubscripPlanById/{id}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> getPlanById(
             @RequestHeader("Authorization") String token,
             @PathVariable Long id) {
@@ -61,7 +64,7 @@ public class SubscriptionPlanController {
     }
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    @RequestMapping(value = "/update/{id}", method = RequestMethod.PUT, produces = {MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/updateSubscripPlan/{id}", method = RequestMethod.PUT, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> updatePlan(
             @RequestHeader("Authorization") String token,
             @PathVariable Long id,
@@ -73,7 +76,7 @@ public class SubscriptionPlanController {
     }
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    @RequestMapping(value = "/delete/{id}", method = RequestMethod.DELETE, produces = {MediaType.APPLICATION_JSON_VALUE})
+    @RequestMapping(value = "/deleteSubscripPlan/{id}", method = RequestMethod.DELETE, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> deletePlan(
             @RequestHeader("Authorization") String token,
             @PathVariable Long id) {
@@ -82,4 +85,6 @@ public class SubscriptionPlanController {
         log.info("END DELETE SUBSCRIPTION PLAN");
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+
 }

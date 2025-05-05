@@ -12,4 +12,5 @@ public interface ISubscriptionService {
     List<SubscriptionModel> findByTenantId(Long tenantId);
     SubscriptionModel update(Long id, SubscriptionModel subscription);
     void delete(Long id);
+    long getNumberOfSubscribers(Long planId);
 }

@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface ISubscriptionRepository extends JpaRepository<SubscriptionModel, Long> {
     List<SubscriptionModel> findByTenantId(Long tenantId);
+    long countByPlanId(Long subscriptionId);
 }
