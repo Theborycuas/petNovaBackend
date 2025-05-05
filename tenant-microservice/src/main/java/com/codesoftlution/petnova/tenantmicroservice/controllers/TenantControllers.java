@@ -1,7 +1,7 @@
 package com.codesoftlution.petnova.tenantmicroservice.controllers;
 
 import com.codesoftlution.petnova.tenantmicroservice.models.TenantModel;
-import com.codesoftlution.petnova.tenantmicroservice.services.TenantService;
+import com.codesoftlution.petnova.tenantmicroservice.servicesImpl.TenantServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 public class TenantControllers {
 
     @Autowired
-    private TenantService tenantService;
+    private TenantServiceImpl tenantServiceImpl;
 
     Logger log = Logger.getLogger(TenantControllers.class.getName());
 
@@ -30,7 +30,7 @@ public class TenantControllers {
             @Valid @RequestBody TenantModel tenantModel
     ) {
         log.info("START CREATE TENANT");
-        TenantModel savedTenant = tenantService.createTenant(tenantModel);
+        TenantModel savedTenant = tenantServiceImpl.createTenant(tenantModel);
         log.info("END CREATE TENANT");
         return new ResponseEntity<>(savedTenant, HttpStatus.CREATED);
     }
@@ -39,7 +39,7 @@ public class TenantControllers {
     @RequestMapping(value = "/getAllTenants", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> getAllTenants() {
         log.info("START GET ALL TENANTS");
-        List<TenantModel> allTenants = tenantService.getAllTenants();
+        List<TenantModel> allTenants = tenantServiceImpl.getAllTenants();
         log.info("END GET ALL TENANTS");
         return new ResponseEntity<>(allTenants, HttpStatus.OK);
     }
@@ -50,7 +50,7 @@ public class TenantControllers {
             @PathVariable Long tenantId
     ){
         log.info("START GET TENANT BY ID");
-        Optional<TenantModel> tenantModel = Optional.ofNullable(tenantService.getTenantById(tenantId))
+        Optional<TenantModel> tenantModel = Optional.ofNullable(tenantServiceImpl.getTenantById(tenantId))
                 .orElseThrow(() -> new RuntimeException("Tenant no Encontrado"));
         log.info("END GET TENANT BY ID");
         return new ResponseEntity<>(tenantModel, HttpStatus.OK);
@@ -63,7 +63,7 @@ public class TenantControllers {
             @Valid @PathVariable Long tenantId
     ){
         log.info("START DELETE TENANT BY ID");
-        boolean tenantDeleted = tenantService.deleteTenantById(token, tenantId);
+        boolean tenantDeleted = tenantServiceImpl.deleteTenantById(token, tenantId);
         log.info("END DELETE TENANT BY ID");
         return new ResponseEntity<>(tenantDeleted, HttpStatus.OK);
     }

@@ -1,11 +1,10 @@
-package com.codesoftlution.petnova.tenantmicroservice.services;
+package com.codesoftlution.petnova.tenantmicroservice.servicesImpl;
 
 import com.codesoftlution.petnova.tenantmicroservice.clientsfeign.OfficeFeignClient;
-import com.codesoftlution.petnova.tenantmicroservice.config.JwtUtil;
+import com.codesoftlution.petnova.tenantmicroservice.interfaces.ITenantService;
 import com.codesoftlution.petnova.tenantmicroservice.models.TenantModel;
 import com.codesoftlution.petnova.tenantmicroservice.repositories.ITenantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -14,16 +13,14 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class TenantService {
+public class TenantServiceImpl implements ITenantService {
     @Autowired
     ITenantRepository tenantRepository;
 
     @Autowired
-    private JwtUtil jwtUtil;
-
-    @Autowired
     private OfficeFeignClient officeFeignClient;
 
+    @Override
     public TenantModel createTenant(TenantModel tenantModel) {
 
             tenantModel.setCreatedAt(LocalDateTime.now());
@@ -35,14 +32,17 @@ public class TenantService {
             return tenantRepository.save(tenantModel);
     }
 
+    @Override
     public List<TenantModel> getAllTenants() {
         return tenantRepository.findAllByDeletedAtIsNull();
     }
 
+    @Override
     public Optional<TenantModel> getTenantById(Long id) {
         return tenantRepository.findById(id);
     }
 
+    @Override
     public boolean deleteTenantById(String token, Long tenantId) {
 
         TenantModel tenantFound = tenantRepository.findById(tenantId)
