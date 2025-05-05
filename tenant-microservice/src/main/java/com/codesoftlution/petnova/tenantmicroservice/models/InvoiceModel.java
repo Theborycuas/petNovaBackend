@@ -2,7 +2,6 @@ package com.codesoftlution.petnova.tenantmicroservice.models;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.Id;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
