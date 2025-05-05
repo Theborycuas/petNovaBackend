@@ -1,7 +1,7 @@
 package com.codesoftlution.petnova.tenantmicroservice.controllers;
 
 import com.codesoftlution.petnova.tenantmicroservice.models.TenantModel;
-import com.codesoftlution.petnova.tenantmicroservice.services.TenantServiceImpl;
+import com.codesoftlution.petnova.tenantmicroservice.servicesImpl.TenantServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

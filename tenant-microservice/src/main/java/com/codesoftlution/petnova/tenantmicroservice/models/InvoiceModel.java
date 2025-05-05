@@ -1,15 +1,16 @@
 package com.codesoftlution.petnova.tenantmicroservice.models;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
+import org.springframework.data.annotation.Id;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
 @Entity
-@Table(name = "subscriptions")
-public class SubscriptionModel {
-
+@Table(name = "invoices")
+public class InvoiceModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -18,20 +19,25 @@ public class SubscriptionModel {
     private Long tenantId;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "plan_id")
-    private SubscriptionPlanModel plan;
+    @JoinColumn(name = "subscription_id")
+    private SubscriptionModel subscription;
 
     @Column(nullable = false)
-    private LocalDate startDate;
+    private BigDecimal amount;
 
     @Column(nullable = false)
-    private LocalDate endDate;
+    private LocalDate issuedDate;
+
+    @Column(nullable = false)
+    private LocalDate dueDate;
+
+    private LocalDate paidDate;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    public enum Status {
-        PENDING, ACTIVE, PAST_DUE, CANCELLED
-    }
+    private String notes;
+
+    public enum Status { ISSUED, PAID, FAILED }
 }

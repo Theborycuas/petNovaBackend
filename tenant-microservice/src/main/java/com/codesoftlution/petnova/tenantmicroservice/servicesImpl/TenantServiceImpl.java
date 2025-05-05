@@ -1,4 +1,4 @@
-package com.codesoftlution.petnova.tenantmicroservice.services;
+package com.codesoftlution.petnova.tenantmicroservice.servicesImpl;
 
 import com.codesoftlution.petnova.tenantmicroservice.clientsfeign.OfficeFeignClient;
 import com.codesoftlution.petnova.tenantmicroservice.interfaces.ITenantService;

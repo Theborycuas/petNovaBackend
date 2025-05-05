@@ -1,4 +1,4 @@
-package com.codesoftlution.petnova.tenantmicroservice.services;
+package com.codesoftlution.petnova.tenantmicroservice.servicesImpl;
 
 import com.codesoftlution.petnova.tenantmicroservice.interfaces.ISubscriptionService;
 import com.codesoftlution.petnova.tenantmicroservice.models.SubscriptionModel;
