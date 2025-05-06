@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -26,7 +27,6 @@ import static com.codesoftlution.petNova.user_microservice.services.CifradoAESSe
 
 @RestController
 @RequestMapping("apiPetNova/users")
-@CrossOrigin(origins = "*")
 public class UserController {
 
     @Autowired
@@ -39,6 +39,15 @@ public class UserController {
     IRoleRepository roleRepository;
 
     Logger log = Logger.getLogger(UserController.class.getName());
+
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN')")
+    @RequestMapping(value = "/getAllUsers", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<?> getAllUsers() {
+        log.info("START GET ALL USERS");
+        List<UserModel> userModelList = userService.getAllUsers();
+        log.info("END GET ALL USERS");
+        return new ResponseEntity<>(userModelList, HttpStatus.OK);
+    }
 
     @RequestMapping(value = "/getUserById/{userId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getUserById(@PathVariable("userId") Long userId) {

@@ -19,7 +19,7 @@ public class UserMapper {
         userDTO.setPhoneNumber(String.valueOf(userModel.getPhoneNumber()));
         userDTO.setActive(userModel.isActive());
         userDTO.setEmailVerified(userModel.isEmailVerified());
-        userDTO.setCreationDate(userModel.getCreationDate());
+        userDTO.setCreationDate(userModel.getCreatedAt());
         userDTO.setUpdateDate(userModel.getUpdateDate());
         userDTO.setLinkPerfilPhoto(userModel.getLinkPerfilPhoto());
         userDTO.setOfficeId(userModel.getOfficeId());
@@ -35,7 +35,7 @@ public class UserMapper {
         userModel.setPhoneNumber(String.valueOf(userDTO.getPhoneNumber()));
         userModel.setActive(userDTO.isActive());
         userModel.setEmailVerified(userDTO.isEmailVerified());
-        userModel.setCreationDate(userDTO.getCreationDate());
+        userModel.setCreatedAt(userDTO.getCreationDate());
         userModel.setUpdateDate(userDTO.getUpdateDate());
         userModel.setLinkPerfilPhoto(userDTO.getLinkPerfilPhoto());
         userModel.setOfficeId(userDTO.getOfficeId());

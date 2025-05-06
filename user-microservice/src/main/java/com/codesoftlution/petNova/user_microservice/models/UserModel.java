@@ -32,6 +32,8 @@ public class UserModel implements UserDetails{
     @Column(unique = true, nullable = false)
     private String username;
 
+    private String address;
+
     @Column(unique = true, nullable = false)
     private String email;
     @Column(nullable = false)
@@ -54,7 +56,7 @@ public class UserModel implements UserDetails{
     @Column(columnDefinition = "TEXT")
     private String firebaseToken;
 
-    private LocalDateTime creationDate;
+    private LocalDateTime createdAt;
     private LocalDateTime updateDate;
 
     @Column(columnDefinition = "TEXT")

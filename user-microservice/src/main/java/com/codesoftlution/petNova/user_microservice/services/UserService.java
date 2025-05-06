@@ -36,11 +36,7 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    /*public UserModel findUserByTokenAndActive(String token, boolean active) {
-        return iUserRepository.findByTokenAndActive(token, active);
-    }*/
-
-    public List<UserModel> getUsers() {
+    public List<UserModel> getAllUsers() {
         return iUserRepository.findAll();
     }
 

@@ -68,7 +68,7 @@ public class JwtAuthenticationFilter implements WebFilter {
 
     // Método para verificar si la ruta requiere autenticación
     private boolean requiresAuthentication(String path) {
-        return !path.matches("^/apiPetNova/auth/.*|^/apiPetNova/users/.*|^/apiPetNova/tenants/.*");
+        return !path.matches("^/apiPetNova/auth/.*");
     }
 
     private String resolveToken(ServerHttpRequest request) {

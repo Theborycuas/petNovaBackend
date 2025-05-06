@@ -68,7 +68,7 @@ public class AuthService {
                 .idNumber(request.getIdNumber())
                 .phoneNumber(request.getPhoneNumber())
                 .officeId(officeIdFound)
-                .creationDate(LocalDateTime.now())
+                .createdAt(LocalDateTime.now())
                 .active(true)
                 .emailVerified(false)
                 .build();
