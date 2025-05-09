@@ -9,7 +9,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 @Entity
 @Getter
@@ -39,10 +38,14 @@ public class UserModel implements UserDetails{
     @Column(nullable = false)
     private String password;
 
+    private String passwordResetToken;
+    private LocalDateTime passwordResetTokenExpiry;
+
     @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)
     private RoleModel role;
 
+    @Column(nullable = false, unique = true)
     private String phoneNumber;
 
     @Column(nullable = false)
@@ -50,6 +53,7 @@ public class UserModel implements UserDetails{
 
     @Column(nullable = false)
     private boolean emailVerified = false;
+    private LocalDateTime emailVerifiedAt;
 
     private boolean borrado;
 
@@ -60,9 +64,16 @@ public class UserModel implements UserDetails{
     private LocalDateTime updateDate;
 
     @Column(columnDefinition = "TEXT")
-    private String linkPerfilPhoto;
+    private String avatarUrl;
 
     private Long officeId;
+
+    private Long tenantId;
+
+    private String preferredLanguage;
+    private String timeZone;
+    private LocalDateTime lastLoginAt;
+    private boolean notificationsEnabled = true;
 
     private LocalDateTime deletedAt;
     public void softDelete() {

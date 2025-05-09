@@ -1,9 +1,7 @@
 package com.codesoftlution.petNova.user_microservice.services;
 
 import com.codesoftlution.petNova.user_microservice.clientsfeign.OfficeFeignClient;
-import com.codesoftlution.petNova.user_microservice.dtos.OfficeDTO;
 import com.codesoftlution.petNova.user_microservice.dtos.UserDTO;
-import com.codesoftlution.petNova.user_microservice.models.RoleModel;
 import com.codesoftlution.petNova.user_microservice.models.UserModel;
 import com.codesoftlution.petNova.user_microservice.request.RequestUpdateUser;
 import com.codesoftlution.petNova.user_microservice.respositories.IRoleRepository;
@@ -62,7 +60,7 @@ public class UserService {
         Optional.ofNullable(userUpdate.getEmail()).ifPresent(userFound::setEmail);
         Optional.ofNullable(userUpdate.getIdNumber()).ifPresent(userFound::setIdNumber);
         Optional.ofNullable(userUpdate.getPhoneNumber()).ifPresent(userFound::setPhoneNumber);
-        Optional.ofNullable(userUpdate.getLinkPerfilPhoto()).ifPresent(userFound::setLinkPerfilPhoto);
+        Optional.ofNullable(userUpdate.getAvatarUrl()).ifPresent(userFound::setAvatarUrl);
 
         LocalDateTime dateNow = LocalDateTime.now();
         userFound.setUpdateDate(dateNow);

@@ -19,6 +19,6 @@ public class RequestUpdateUser {
     private String email;
 
     private String phoneNumber;
-    private String linkPerfilPhoto;
+    private String avatarUrl;
 
 }

@@ -1,6 +1,5 @@
 package com.codesoftlution.petNova.user_microservice.dtos;
 
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,6 +26,6 @@ public class UserDTO {
     private String firebaseToken;
     private LocalDateTime creationDate;
     private LocalDateTime updateDate;
-    private String linkPerfilPhoto;
+    private String avatarUrl;
     private Long officeId;
 }

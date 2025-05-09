@@ -2,7 +2,6 @@ package com.codesoftlution.petNova.user_microservice.controllers;
 
 import com.codesoftlution.petNova.user_microservice.dtos.UserDTO;
 import com.codesoftlution.petNova.user_microservice.models.UserModel;
-import com.codesoftlution.petNova.user_microservice.response.ListUserResponse;
 import com.codesoftlution.petNova.user_microservice.request.RequestUpdateUser;
 import com.codesoftlution.petNova.user_microservice.respositories.IRoleRepository;
 import com.codesoftlution.petNova.user_microservice.respositories.IUserRepository;
@@ -15,14 +14,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
-import javax.print.attribute.standard.Media;
 import java.util.List;
 import java.util.logging.Logger;
 
 import static com.codesoftlution.petNova.user_microservice.mappers.UserMapper.toUserDTO;
-import static com.codesoftlution.petNova.user_microservice.services.CifradoAESService.*;
+import static com.codesoftlution.petNova.user_microservice.services.CifradoAESService.pnCifradoService;
+import static com.codesoftlution.petNova.user_microservice.services.CifradoAESService.pnDescifradoService;
 
 
 @RestController
@@ -51,16 +49,11 @@ public class UserController {
 
     @RequestMapping(value = "/getUserById/{userId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getUserById(@PathVariable("userId") Long userId) {
-        try {
-            log.info("START USER GET USER BY ID: ");
-            UserModel userFound = userRepository.findById(userId)
-                    .orElseThrow(()->new RuntimeException("No se encontro el usuario"));
-            log.info("END USER GET USER BY ID: ");
-            return ResponseEntity.status(HttpStatus.OK).body(toUserDTO(userFound));
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
+        log.info("START USER GET USER BY ID: ");
+        UserModel userFound = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("No se encontro el usuario"));
+        log.info("END USER GET USER BY ID: ");
+        return ResponseEntity.status(HttpStatus.OK).body(toUserDTO(userFound));
     }
 
     @RequestMapping(value = "/findByUsernameAndActive/{userName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -68,7 +61,7 @@ public class UserController {
         try {
             log.info("START USER GET USER BY ID: ");
             UserModel userFound = userRepository.findByUsernameAndActive(userName, true)
-                    .orElseThrow(()->new RuntimeException("No se encontro el usuario"));
+                    .orElseThrow(() -> new RuntimeException("No se encontro el usuario"));
             log.info("END USER GET USER BY ID: ");
             return ResponseEntity.status(HttpStatus.OK).body(toUserDTO(userFound));
         } catch (Exception e) {
@@ -143,14 +136,14 @@ public class UserController {
             //userService.deleteUserByAdmin(adminToken, usernameToDelete);
             log.info("END DELETE USER BY ADMIN");
             return ResponseEntity.status(HttpStatus.OK).body("USUARIO ELIMINADO");
-        }catch (Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
 
     }
 
     @RequestMapping(value = "/approveVeterinarian/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> approveVeterinarian(@Valid @PathVariable Long id){
+    public ResponseEntity<?> approveVeterinarian(@Valid @PathVariable Long id) {
         try {
             log.info("START APPROVE VTERINARIAN");
             userService.approveVeterinarian(id);
@@ -190,7 +183,6 @@ public class UserController {
     public ResponseEntity<?> getOk() {
         return new ResponseEntity<>("OK", HttpStatus.OK);
     }
-
 
 
 }

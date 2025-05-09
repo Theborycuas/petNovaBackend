@@ -1,10 +1,7 @@
 package com.codesoftlution.petNova.user_microservice.mappers;
 
 import com.codesoftlution.petNova.user_microservice.dtos.UserDTO;
-import com.codesoftlution.petNova.user_microservice.models.RoleModel;
 import com.codesoftlution.petNova.user_microservice.models.UserModel;
-import com.codesoftlution.petNova.user_microservice.respositories.IRoleRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class UserMapper {
 
@@ -21,7 +18,7 @@ public class UserMapper {
         userDTO.setEmailVerified(userModel.isEmailVerified());
         userDTO.setCreationDate(userModel.getCreatedAt());
         userDTO.setUpdateDate(userModel.getUpdateDate());
-        userDTO.setLinkPerfilPhoto(userModel.getLinkPerfilPhoto());
+        userDTO.setAvatarUrl(userModel.getAvatarUrl());
         userDTO.setOfficeId(userModel.getOfficeId());
         return userDTO;
     }
@@ -37,7 +34,7 @@ public class UserMapper {
         userModel.setEmailVerified(userDTO.isEmailVerified());
         userModel.setCreatedAt(userDTO.getCreationDate());
         userModel.setUpdateDate(userDTO.getUpdateDate());
-        userModel.setLinkPerfilPhoto(userDTO.getLinkPerfilPhoto());
+        userModel.setAvatarUrl(userDTO.getAvatarUrl());
         userModel.setOfficeId(userDTO.getOfficeId());
         return userModel;
     }
