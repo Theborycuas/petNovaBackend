@@ -17,7 +17,7 @@ public class UserMapper {
         userDTO.setActive(userModel.isActive());
         userDTO.setEmailVerified(userModel.isEmailVerified());
         userDTO.setCreationDate(userModel.getCreatedAt());
-        userDTO.setUpdateDate(userModel.getUpdateDate());
+        userDTO.setUpdateDate(userModel.getUpdateAt());
         userDTO.setAvatarUrl(userModel.getAvatarUrl());
         userDTO.setOfficeId(userModel.getOfficeId());
         return userDTO;
@@ -33,7 +33,7 @@ public class UserMapper {
         userModel.setActive(userDTO.isActive());
         userModel.setEmailVerified(userDTO.isEmailVerified());
         userModel.setCreatedAt(userDTO.getCreationDate());
-        userModel.setUpdateDate(userDTO.getUpdateDate());
+        userModel.setUpdateAt(userDTO.getUpdateDate());
         userModel.setAvatarUrl(userDTO.getAvatarUrl());
         userModel.setOfficeId(userDTO.getOfficeId());
         return userModel;

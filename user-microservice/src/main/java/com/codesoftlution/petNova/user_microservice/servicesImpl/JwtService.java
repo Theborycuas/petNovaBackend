@@ -1,4 +1,4 @@
-package com.codesoftlution.petNova.user_microservice.services;
+package com.codesoftlution.petNova.user_microservice.servicesImpl;
 
 import com.codesoftlution.petNova.user_microservice.models.UserModel;
 import io.jsonwebtoken.Claims;
@@ -13,12 +13,8 @@ import org.springframework.stereotype.Service;
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import static com.codesoftlution.petNova.user_microservice.utils.Constants.*;
 
 @Service
 public class JwtService {

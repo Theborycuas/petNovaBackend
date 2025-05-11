@@ -1,11 +1,10 @@
 package com.codesoftlution.petNova.user_microservice.controllers;
 
-import com.codesoftlution.petNova.user_microservice.dtos.UserDTO;
 import com.codesoftlution.petNova.user_microservice.models.UserModel;
 import com.codesoftlution.petNova.user_microservice.request.RequestUpdateUser;
 import com.codesoftlution.petNova.user_microservice.respositories.IRoleRepository;
 import com.codesoftlution.petNova.user_microservice.respositories.IUserRepository;
-import com.codesoftlution.petNova.user_microservice.services.UserService;
+import com.codesoftlution.petNova.user_microservice.servicesImpl.UserServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +18,8 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import static com.codesoftlution.petNova.user_microservice.mappers.UserMapper.toUserDTO;
-import static com.codesoftlution.petNova.user_microservice.services.CifradoAESService.pnCifradoService;
-import static com.codesoftlution.petNova.user_microservice.services.CifradoAESService.pnDescifradoService;
+import static com.codesoftlution.petNova.user_microservice.servicesImpl.CifradoAESService.pnCifradoService;
+import static com.codesoftlution.petNova.user_microservice.servicesImpl.CifradoAESService.pnDescifradoService;
 
 
 @RestController
@@ -28,7 +27,7 @@ import static com.codesoftlution.petNova.user_microservice.services.CifradoAESSe
 public class UserController {
 
     @Autowired
-    private UserService userService;
+    private UserServiceImpl userServiceImpl;
     @Autowired
     private IUserRepository userRepository;
     @Autowired
@@ -42,7 +41,7 @@ public class UserController {
     @RequestMapping(value = "/getAllUsers", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> getAllUsers() {
         log.info("START GET ALL USERS");
-        List<UserModel> userModelList = userService.getAllUsers();
+        List<UserModel> userModelList = userServiceImpl.getAllUsers();
         log.info("END GET ALL USERS");
         return new ResponseEntity<>(userModelList, HttpStatus.OK);
     }
@@ -71,15 +70,11 @@ public class UserController {
 
     @RequestMapping(value = "/createUser", method = RequestMethod.POST, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> userCreate(
-            @Valid @RequestBody UserDTO userDTO) {
-        try {
-            log.info("START USER UPDATE USER: ");
-            UserModel updatedUser = userService.createUser(userDTO);
-            log.info("END USER UPDATE USER: ");
-            return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
+            @Valid @RequestBody UserModel userModel) {
+        log.info("START USER CREATE USER: ");
+        UserModel createdUser = userServiceImpl.createUser(userModel);
+        log.info("END USER CREATE USER: ");
+        return ResponseEntity.status(HttpStatus.OK).body(createdUser);
     }
 
 
@@ -89,7 +84,7 @@ public class UserController {
             @Valid @RequestBody RequestUpdateUser requestUpdateUser) {
         try {
             log.info("START USER UPDATE USER: ");
-            UserModel updatedUser = userService.updateUser(token, requestUpdateUser);
+            UserModel updatedUser = userServiceImpl.updateUser(token, requestUpdateUser);
             log.info("END USER UPDATE USER: ");
             return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
         } catch (Exception e) {
@@ -146,7 +141,7 @@ public class UserController {
     public ResponseEntity<?> approveVeterinarian(@Valid @PathVariable Long id) {
         try {
             log.info("START APPROVE VTERINARIAN");
-            userService.approveVeterinarian(id);
+            userServiceImpl.approveVeterinarian(id);
             log.info("END APPROVE VTERINARIAN");
             return ResponseEntity.status(HttpStatus.OK).body("VETERINARIO ACTIVADO");
         } catch (Exception e) {

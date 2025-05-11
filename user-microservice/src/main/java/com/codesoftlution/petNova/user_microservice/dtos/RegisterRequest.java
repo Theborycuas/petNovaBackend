@@ -24,4 +24,5 @@ public class RegisterRequest {
     private String linkPerfilPhoto;
 
     private Long officeId;
+    private Long tenantId;
 }

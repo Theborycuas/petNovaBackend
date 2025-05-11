@@ -1,24 +1,25 @@
-package com.codesoftlution.petNova.user_microservice.services;
+package com.codesoftlution.petNova.user_microservice.servicesImpl;
 
 import com.codesoftlution.petNova.user_microservice.clientsfeign.OfficeFeignClient;
-import com.codesoftlution.petNova.user_microservice.dtos.UserDTO;
+import com.codesoftlution.petNova.user_microservice.interfaces.IUserServices;
 import com.codesoftlution.petNova.user_microservice.models.UserModel;
 import com.codesoftlution.petNova.user_microservice.request.RequestUpdateUser;
 import com.codesoftlution.petNova.user_microservice.respositories.IRoleRepository;
 import com.codesoftlution.petNova.user_microservice.respositories.IUserRepository;
+import com.codesoftlution.petNova.user_microservice.utils.PasswordGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
-import static com.codesoftlution.petNova.user_microservice.mappers.UserMapper.toUserModel;
-
 @Service
-public class UserService {
+public class UserServiceImpl implements IUserServices {
     @Autowired
     IUserRepository iUserRepository;
 
@@ -27,6 +28,13 @@ public class UserService {
 
     @Autowired
     OfficeFeignClient officeFeignClient;
+
+
+    private final PasswordEncoder passwordEncoder;
+
+    public UserServiceImpl(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
 
 
     public UserModel findByUsernameAndActive(String email, boolean active) {
@@ -38,14 +46,25 @@ public class UserService {
         return iUserRepository.findAll();
     }
 
-    public UserModel createUser(UserDTO userDTO) {
-        Optional<UserModel> userFound = iUserRepository.findByUsernameAndActive(userDTO.getUsername(), true);
-        if (!userFound.isPresent()) {
-            return iUserRepository.save(toUserModel(userDTO));
-        }else{
-            return null;
+    public UserModel createUser(UserModel userModel) {
+        ZoneId zoneId = ZoneId.systemDefault();
+        System.out.println("Zona horaria actual: " + zoneId);
+
+        if(userModel.getUsername() == null || userModel.getUsername().isEmpty()) {
+            userModel.setUsername(userModel.getEmail());
         }
 
+        if(userModel.getPassword() == null || userModel.getPassword().isEmpty()) {
+            userModel.setPassword(PasswordGenerator.generatePassword(userModel.getName(),
+                    userModel.getPhoneNumber(), userModel.getEmail()));
+        }
+        userModel.setPassword(passwordEncoder.encode(userModel.getPassword()));
+        userModel.setActive(false);
+        userModel.setEmailVerified(false);
+        userModel.setCreatedAt(LocalDateTime.now());
+        userModel.setTimeZone(String.valueOf(zoneId));
+        userModel.setPreferredLanguage("ES");
+        return iUserRepository.save(userModel);
     }
 
     public UserModel updateUser(String token, RequestUpdateUser userUpdate) {
@@ -63,7 +82,7 @@ public class UserService {
         Optional.ofNullable(userUpdate.getAvatarUrl()).ifPresent(userFound::setAvatarUrl);
 
         LocalDateTime dateNow = LocalDateTime.now();
-        userFound.setUpdateDate(dateNow);
+        userFound.setUpdateAt(dateNow);
         return iUserRepository.save(userFound);
     }
 

@@ -55,13 +55,11 @@ public class UserModel implements UserDetails{
     private boolean emailVerified = false;
     private LocalDateTime emailVerifiedAt;
 
-    private boolean borrado;
-
     @Column(columnDefinition = "TEXT")
     private String firebaseToken;
 
     private LocalDateTime createdAt;
-    private LocalDateTime updateDate;
+    private LocalDateTime updateAt;
 
     @Column(columnDefinition = "TEXT")
     private String avatarUrl;

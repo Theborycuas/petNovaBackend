@@ -19,6 +19,7 @@ public class UserDTO {
     private String username;
     private String email;
     private String password;
+    private String rollId;
     private String rollName;
     private String phoneNumber;
     private boolean active;
@@ -28,4 +29,5 @@ public class UserDTO {
     private LocalDateTime updateDate;
     private String avatarUrl;
     private Long officeId;
+    private Long tenantId;
 }
