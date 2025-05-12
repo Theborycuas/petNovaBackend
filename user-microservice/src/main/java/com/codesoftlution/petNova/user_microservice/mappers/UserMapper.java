@@ -1,28 +1,40 @@
 package com.codesoftlution.petNova.user_microservice.mappers;
 
-import com.codesoftlution.petNova.user_microservice.dtos.UserDTO;
+import com.codesoftlution.petNova.user_microservice.dtos.UserDetailDTO;
+import com.codesoftlution.petNova.user_microservice.dtos.UserPublicDTO;
 import com.codesoftlution.petNova.user_microservice.models.UserModel;
 
 public class UserMapper {
 
-    public static UserDTO toUserDTO(final UserModel userModel) {
-        UserDTO userDTO = new UserDTO();
+    public static UserDetailDTO toUserDetailDTO(final UserModel userModel) {
+        UserDetailDTO userDTO = new UserDetailDTO();
         userDTO.setId(userModel.getId());
         userDTO.setName(userModel.getName());
         userDTO.setUsername(userModel.getUsername());
         userDTO.setEmail(userModel.getEmail());
-        userDTO.setPassword(userModel.getPassword());
-        userDTO.setRollName(userModel.getRole().getRoleName());
+        userDTO.setIdNumber(userModel.getIdNumber());
+        userDTO.setRole(userModel.getRole());
         userDTO.setPhoneNumber(String.valueOf(userModel.getPhoneNumber()));
+        userDTO.setAddress(userModel.getAddress());
         userDTO.setActive(userModel.isActive());
         userDTO.setEmailVerified(userModel.isEmailVerified());
-        userDTO.setCreationDate(userModel.getCreatedAt());
-        userDTO.setUpdateDate(userModel.getUpdateAt());
+        userDTO.setCreatedAt(userModel.getCreatedAt());
+        userDTO.setUpdateAt(userModel.getUpdateAt());
         userDTO.setAvatarUrl(userModel.getAvatarUrl());
         userDTO.setOfficeId(userModel.getOfficeId());
         return userDTO;
     }
-    public static UserModel toUserModel(final UserDTO userDTO) {
+
+    public static UserPublicDTO toUserPublicDTO(final UserModel userModel) {
+        UserPublicDTO userDTO = new UserPublicDTO();
+        userDTO.setId(userModel.getId());
+        userDTO.setName(userModel.getName());
+        userDTO.setEmail(userModel.getEmail());
+        userDTO.setAvatarUrl(userModel.getAvatarUrl());
+        return userDTO;
+    }
+
+   /* public static UserModel toUserModel(final UserDTO userDTO) {
         UserModel userModel = new UserModel();
         userModel.setId(userDTO.getId());
         userModel.setName(userDTO.getName());
@@ -37,6 +49,6 @@ public class UserMapper {
         userModel.setAvatarUrl(userDTO.getAvatarUrl());
         userModel.setOfficeId(userDTO.getOfficeId());
         return userModel;
-    }
+    }*/
 
 }

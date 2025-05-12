@@ -32,6 +32,7 @@ public class UserModel implements UserDetails{
     private String username;
 
     private String address;
+    private String city;
 
     @Column(unique = true, nullable = false)
     private String email;
@@ -50,6 +51,8 @@ public class UserModel implements UserDetails{
 
     @Column(nullable = false)
     private boolean active = false;
+
+    private String gender;
 
     @Column(nullable = false)
     private boolean emailVerified = false;

@@ -1,5 +1,6 @@
 package com.codesoftlution.petNova.user_microservice.controllers;
 
+import com.codesoftlution.petNova.user_microservice.mappers.UserMapper;
 import com.codesoftlution.petNova.user_microservice.models.UserModel;
 import com.codesoftlution.petNova.user_microservice.request.RequestUpdateUser;
 import com.codesoftlution.petNova.user_microservice.respositories.IRoleRepository;
@@ -17,7 +18,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.logging.Logger;
 
-import static com.codesoftlution.petNova.user_microservice.mappers.UserMapper.toUserDTO;
+import static com.codesoftlution.petNova.user_microservice.mappers.UserMapper.toUserDetailDTO;
+import static com.codesoftlution.petNova.user_microservice.mappers.UserMapper.toUserPublicDTO;
 import static com.codesoftlution.petNova.user_microservice.servicesImpl.CifradoAESService.pnCifradoService;
 import static com.codesoftlution.petNova.user_microservice.servicesImpl.CifradoAESService.pnDescifradoService;
 
@@ -46,26 +48,22 @@ public class UserController {
         return new ResponseEntity<>(userModelList, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/getUserById/{userId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getUserById(@PathVariable("userId") Long userId) {
-        log.info("START USER GET USER BY ID: ");
+    @RequestMapping(value = "/getUserDetailById/{userId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getUserDetailById(@PathVariable("userId") Long userId) {
+        log.info("START GET USER DETAILS BY ID: ");
         UserModel userFound = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("No se encontro el usuario"));
-        log.info("END USER GET USER BY ID: ");
-        return ResponseEntity.status(HttpStatus.OK).body(toUserDTO(userFound));
+                .orElseThrow(() -> new RuntimeException("No se encontró el usuario"));
+        log.info("END GET USER DETAILS BY ID: ");
+        return ResponseEntity.status(HttpStatus.OK).body(toUserDetailDTO(userFound));
     }
 
-    @RequestMapping(value = "/findByUsernameAndActive/{userName}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getUserById(@PathVariable("userName") String userName) {
-        try {
-            log.info("START USER GET USER BY ID: ");
-            UserModel userFound = userRepository.findByUsernameAndActive(userName, true)
-                    .orElseThrow(() -> new RuntimeException("No se encontro el usuario"));
-            log.info("END USER GET USER BY ID: ");
-            return ResponseEntity.status(HttpStatus.OK).body(toUserDTO(userFound));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
+    @RequestMapping(value = "/getUserPublicById/{userId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getUserPublicById(@PathVariable("userId") Long userId) {
+        log.info("START GET USER PUBLIC BY ID: ");
+        UserModel userFound = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("No se encontró el usuario"));
+        log.info("END GET USER PUBLIC BY ID: ");
+        return ResponseEntity.status(HttpStatus.OK).body(toUserPublicDTO(userFound));
     }
 
     @RequestMapping(value = "/createUser", method = RequestMethod.POST, produces = {MediaType.APPLICATION_JSON_VALUE})
