@@ -13,6 +13,7 @@ public class UserDetailDTO {
     private String username;
     private String idNumber;
     private String phoneNumber;
+    private String city;
     private String address;
     private String avatarUrl;
     private boolean active;

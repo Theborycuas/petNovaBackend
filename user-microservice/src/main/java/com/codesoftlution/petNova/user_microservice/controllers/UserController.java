@@ -72,7 +72,7 @@ public class UserController {
         log.info("START USER CREATE USER: ");
         UserModel createdUser = userServiceImpl.createUser(userModel);
         log.info("END USER CREATE USER: ");
-        return ResponseEntity.status(HttpStatus.OK).body(createdUser);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
 
 
@@ -81,9 +81,9 @@ public class UserController {
             @Valid @RequestHeader("Authorization") String token,
             @Valid @RequestBody RequestUpdateUser requestUpdateUser) {
         try {
-            log.info("START USER UPDATE USER: ");
+            log.info("START UPDATE USER: ");
             UserModel updatedUser = userServiceImpl.updateUser(token, requestUpdateUser);
-            log.info("END USER UPDATE USER: ");
+            log.info("END UPDATE USER: ");
             return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

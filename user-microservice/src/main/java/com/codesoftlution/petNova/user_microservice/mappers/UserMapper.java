@@ -15,6 +15,7 @@ public class UserMapper {
         userDTO.setIdNumber(userModel.getIdNumber());
         userDTO.setRole(userModel.getRole());
         userDTO.setPhoneNumber(String.valueOf(userModel.getPhoneNumber()));
+        userDTO.setCity(userModel.getCity());
         userDTO.setAddress(userModel.getAddress());
         userDTO.setActive(userModel.isActive());
         userDTO.setEmailVerified(userModel.isEmailVerified());
