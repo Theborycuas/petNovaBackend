@@ -1,7 +1,9 @@
 package com.codesoftlution.petNova.user_microservice.servicesImpl;
 
 import com.codesoftlution.petNova.user_microservice.clientsfeign.OfficeFeignClient;
+import com.codesoftlution.petNova.user_microservice.dtos.UserDetailDTO;
 import com.codesoftlution.petNova.user_microservice.interfaces.IUserServices;
+import com.codesoftlution.petNova.user_microservice.models.RoleModel;
 import com.codesoftlution.petNova.user_microservice.models.UserModel;
 import com.codesoftlution.petNova.user_microservice.request.RequestUpdateUser;
 import com.codesoftlution.petNova.user_microservice.respositories.IRoleRepository;
@@ -67,55 +69,32 @@ public class UserServiceImpl implements IUserServices {
         return iUserRepository.save(userModel);
     }
 
-    public UserModel updateUser(String token, RequestUpdateUser userUpdate) {
+    public UserModel updateUser(Long userId, UserDetailDTO dto) {
+        UserModel user = iUserRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
+        user.setName(dto.getName());
+        user.setIdNumber(dto.getIdNumber());
+        user.setEmail(dto.getEmail());
+        user.setPhoneNumber(dto.getPhoneNumber());
+        user.setCity(dto.getCity());
+        user.setAddress(dto.getAddress());
+        user.setAvatarUrl(dto.getAvatarUrl());
+        user.setPreferredLanguage(dto.getPreferredLanguage());
+        user.setTimeZone(dto.getTimeZone());
+        user.setOfficeId(dto.getOfficeId());
+        user.setTenantId(dto.getTenantId());
 
-        UserModel userFound = iUserRepository.findByUsernameAndActive(userUpdate.getUsername(), true)
-                .orElseThrow(() -> new RuntimeException("USUARIO NO ENCONTRADO"));
+        if (dto.getRole() != null && dto.getRole().getId() != null) {
+            RoleModel role = roleRepository.findById(dto.getRole().getId())
+                    .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
+            user.setRole(role);
+        }
 
-        //Utilizo Optional.ofNullable reemplazando el if para comparar si cada atributo viene vacio
-        Optional.ofNullable(userUpdate.getName()).ifPresent(userFound::setName);
-        Optional.ofNullable(userUpdate.getUsername()).ifPresent(userFound::setUsername);
-        Optional.ofNullable(userUpdate.getEmail()).ifPresent(userFound::setEmail);
-        Optional.ofNullable(userUpdate.getIdNumber()).ifPresent(userFound::setIdNumber);
-        Optional.ofNullable(userUpdate.getPhoneNumber()).ifPresent(userFound::setPhoneNumber);
-        Optional.ofNullable(userUpdate.getAvatarUrl()).ifPresent(userFound::setAvatarUrl);
+        user.setUpdateAt(LocalDateTime.now());
 
-        LocalDateTime dateNow = LocalDateTime.now();
-        userFound.setUpdateAt(dateNow);
-        return iUserRepository.save(userFound);
+        return iUserRepository.save(user);
     }
-
-    /*public void deleteUser(String token) {
-
-        UserModel userFound = iUserRepository.findByUsernameAndActive(userName, true)
-                .orElseThrow(()-> new RuntimeException("USUARIO NO ENCONTRADO"));
-
-        userFound.setActive(false);
-        iUserRepository.save(userFound);
-    }*/
-
-    /*public void deleteUserByAdmin(String adminToken, String userName) {
-
-        String userNameAdmin = jwtService.extractUsername(adminToken.substring(7));
-
-        UserModel adminUserFound = iUserRepository.findByUsernameAndActive(userNameAdmin, true)
-                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "USUARIO NO ENCONTRADO"));
-
-        if(!adminUserFound.getRole().getRoleName().equals("SUPER_ADMIN")) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "SOLO ADMINISTRADORES PUEDEN ELIMINAR CUENTAS");
-        }
-
-        UserModel userToDelete = iUserRepository.findByUsernameAndActive(userName, true)
-                .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND, "USUARIO NO ENCONTRADO"));
-
-        if(userToDelete.getRole().getRoleName().equals("SUPER_ADMIN")) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "NO PUEDES ELIMINAR UNA CUENTA SUPERADMIN");
-        }
-
-        userToDelete.setActive(false);
-        iUserRepository.save(userToDelete);
-    }*/
 
     public void approveVeterinarian(Long id){
         UserModel userFound = iUserRepository.findById(id)
@@ -128,11 +107,4 @@ public class UserServiceImpl implements IUserServices {
         iUserRepository.save(userFound);
     }
 
-
-
- /*   @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return iUserRepository.findByUsernameAndActive(username, true)
-                .orElseThrow(() -> new UsernameNotFoundException("El usuario no existe o no esta Activo"));
-    }*/
 }

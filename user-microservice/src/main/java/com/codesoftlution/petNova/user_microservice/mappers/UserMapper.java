@@ -23,6 +23,7 @@ public class UserMapper {
         userDTO.setUpdateAt(userModel.getUpdateAt());
         userDTO.setAvatarUrl(userModel.getAvatarUrl());
         userDTO.setOfficeId(userModel.getOfficeId());
+        userDTO.setTenantId(userModel.getTenantId());
         return userDTO;
     }
 

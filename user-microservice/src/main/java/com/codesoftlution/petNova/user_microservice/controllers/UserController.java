@@ -1,5 +1,6 @@
 package com.codesoftlution.petNova.user_microservice.controllers;
 
+import com.codesoftlution.petNova.user_microservice.dtos.UserDetailDTO;
 import com.codesoftlution.petNova.user_microservice.mappers.UserMapper;
 import com.codesoftlution.petNova.user_microservice.models.UserModel;
 import com.codesoftlution.petNova.user_microservice.request.RequestUpdateUser;
@@ -75,38 +76,16 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
 
-
-    @RequestMapping(value = "/updateUser", method = RequestMethod.POST, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<?> userUpdate(
-            @Valid @RequestHeader("Authorization") String token,
-            @Valid @RequestBody RequestUpdateUser requestUpdateUser) {
-        try {
-            log.info("START UPDATE USER: ");
-            UserModel updatedUser = userServiceImpl.updateUser(token, requestUpdateUser);
-            log.info("END UPDATE USER: ");
-            return ResponseEntity.status(HttpStatus.OK).body(updatedUser);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
+    @RequestMapping(value = "/updateUserDetailById/{userId}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> updateUser(
+            @PathVariable("userId") Long userId,
+            @Valid @RequestBody UserDetailDTO userDTO
+    ) {
+        log.info("START UPDATE USER: " + userId);
+        UserModel updatedUser = userServiceImpl.updateUser(userId, userDTO);
+        log.info("END UPDATE USER: " + userId);
+        return ResponseEntity.status(HttpStatus.OK).body(toUserDetailDTO(updatedUser));
     }
-
-   /* @RequestMapping(value = "/getUsers", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<?> getUsers() {
-        try {
-            log.info("START GETUSERS");
-            List<UserModel> userModelList = userService.getUsers();
-
-            ListUserResponse listUserResponse = new ListUserResponse();
-            listUserResponse.setUserModels(userModelList);
-            listUserResponse.setMessage("Lista de Usuarios");
-
-            log.info("END GETUSERS");
-            return new ResponseEntity<>(listUserResponse, HttpStatus.OK);
-
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }*/
 
     @RequestMapping(value = "/deleteMyAccount", method = RequestMethod.DELETE, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> deleteMyAccount(
