@@ -11,4 +11,6 @@ public interface IUserRepository extends JpaRepository<UserModel, Long> {
     Optional<UserModel> findByUsername(String username);
     Optional<UserModel> findByUsernameAndActive(String username, boolean active);
     List<UserModel> findAllByDeletedAtIsNull();
+    Optional<UserModel> findByTenantId(Long tenantId);
+
 }

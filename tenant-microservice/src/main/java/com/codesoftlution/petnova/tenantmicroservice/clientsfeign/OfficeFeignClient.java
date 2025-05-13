@@ -13,5 +13,4 @@ public interface OfficeFeignClient {
             @RequestHeader("Authorization") String token,
             @PathVariable("tenantId") Long tenandId
             );
-
 }

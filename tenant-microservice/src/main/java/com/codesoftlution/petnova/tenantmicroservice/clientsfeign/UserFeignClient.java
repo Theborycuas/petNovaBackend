@@ -1,10 +1,8 @@
 package com.codesoftlution.petnova.tenantmicroservice.clientsfeign;
 
+import com.codesoftlution.petnova.tenantmicroservice.dtos.UserPublicDTO;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.*;
 
 @FeignClient(name = "user-microservice", path = "/apiPetNova")
 public interface UserFeignClient {
@@ -15,4 +13,11 @@ public interface UserFeignClient {
             @PathVariable("userId") Long userId,
             @RequestBody Long tenantId
     );
+
+    @GetMapping("users/getUserByTenantId/{tenantId}")
+    UserPublicDTO getUserByTenantId(
+            @RequestHeader("Authorization") String token,
+            @PathVariable("tenantId") Long tenantId
+    );
+
 }

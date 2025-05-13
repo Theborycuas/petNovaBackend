@@ -106,6 +106,14 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(true);
     }
 
+    @RequestMapping(value = "/getUserByTenantId/{tenantId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getUserByTenantId(@PathVariable("tenantId") Long tenantId) {
+        log.info("START GET USER PUBLIC BY ID: ");
+        UserModel userFound = userServiceImpl.getUserByTenantId(tenantId);
+        log.info("END GET USER PUBLIC BY ID: ");
+        return ResponseEntity.status(HttpStatus.OK).body(toUserPublicDTO(userFound));
+    }
+
     @RequestMapping(value = "/approveVeterinarian/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> approveVeterinarian(@Valid @PathVariable Long id) {
         try {

@@ -115,6 +115,7 @@ public class AuthService {
                 .expiresIn(jwtExpiration)
                 .idToken(jwtToken)
                 .refreshToken(jwtRefreshToken)
+                .avatarUrl(user.getAvatarUrl())
                 .kind("identitytoolkit#VerifyPasswordResponse")
                 .localId("qmt6dRyipIad8UCc0QpMV2MENSy1")
                 .build();

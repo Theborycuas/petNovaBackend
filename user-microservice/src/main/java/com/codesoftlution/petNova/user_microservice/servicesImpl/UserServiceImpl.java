@@ -64,6 +64,12 @@ public class UserServiceImpl implements IUserServices {
             userModel.setUsername(userModel.getEmail());
         }
 
+        if(userModel.getRole() == null) {
+            RoleModel roleModel = new RoleModel();
+            roleModel.setId(7L);
+            userModel.setRole(roleModel);
+        }
+
         if(userModel.getPassword() == null || userModel.getPassword().isEmpty()) {
             userModel.setPassword(PasswordGenerator.generatePassword(userModel.getName(),
                     userModel.getPhoneNumber(), userModel.getEmail()));
@@ -103,7 +109,17 @@ public class UserServiceImpl implements IUserServices {
         return iUserRepository.save(user);
     }
 
+    @Override
     public UserModel updateUserTenantManage(Long userId, Long tenantId) {
+        RoleModel role7 = new RoleModel();
+        role7.setId(7L);
+
+        Optional<UserModel> getUserTenant = iUserRepository.findByTenantId(tenantId);
+        getUserTenant.ifPresent(userModel -> userModel.setTenantId(null));
+        getUserTenant.ifPresent(userModel -> userModel.setRole(role7));
+
+        iUserRepository.save(getUserTenant.orElseThrow(() -> new RuntimeException("Usuario no encontrado")));
+
         RoleModel roleTenant = new RoleModel();
         roleTenant.setId(3L);
 
@@ -124,6 +140,12 @@ public class UserServiceImpl implements IUserServices {
         userFound.softDelete();
         iUserRepository.save(userFound);
         return true;
+    }
+
+    @Override
+    public UserModel getUserByTenantId(Long tenantId) {
+        return iUserRepository.findByTenantId(tenantId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
     public void approveVeterinarian(Long id){

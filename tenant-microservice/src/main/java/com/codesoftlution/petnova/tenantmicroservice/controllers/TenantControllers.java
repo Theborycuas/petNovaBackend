@@ -1,6 +1,6 @@
 package com.codesoftlution.petnova.tenantmicroservice.controllers;
 
-import com.codesoftlution.petnova.tenantmicroservice.dtos.CreateTenantDTO;
+import com.codesoftlution.petnova.tenantmicroservice.dtos.TenantDTO;
 import com.codesoftlution.petnova.tenantmicroservice.models.TenantModel;
 import com.codesoftlution.petnova.tenantmicroservice.servicesImpl.TenantServiceImpl;
 import jakarta.validation.Valid;
@@ -28,10 +28,10 @@ public class TenantControllers {
     @RequestMapping(value = "/createTenant", method = RequestMethod.POST, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> createTenant(
             @RequestHeader("Authorization") String token,
-            @Valid @RequestBody CreateTenantDTO createTenantDTO
+            @Valid @RequestBody TenantDTO tenantDTO
     ) {
         log.info("START CREATE TENANT");
-        TenantModel savedTenant = tenantServiceImpl.createTenant(token, createTenantDTO);
+        TenantModel savedTenant = tenantServiceImpl.createTenant(token, tenantDTO);
         log.info("END CREATE TENANT");
         return new ResponseEntity<>(savedTenant, HttpStatus.CREATED);
     }
@@ -46,8 +46,8 @@ public class TenantControllers {
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'TENANT_ADMIN')")
-    @RequestMapping(value = "/getTenantById/{tenantId}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<?> getTenantById(
+    @RequestMapping(value = "/getTenantDetailById/{tenantId}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<?> getTenantDetailById(
             @PathVariable Long tenantId
     ){
         log.info("START GET TENANT BY ID");
@@ -55,6 +55,31 @@ public class TenantControllers {
                 .orElseThrow(() -> new RuntimeException("Tenant no Encontrado"));
         log.info("END GET TENANT BY ID");
         return new ResponseEntity<>(tenantModel, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'TENANT_ADMIN')")
+    @RequestMapping(value = "/getBasicTenantById/{tenantId}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<?> getBasicTenantById(
+            @RequestHeader("Authorization") String token,
+            @PathVariable Long tenantId
+    ){
+        log.info("START GET TENANT BY ID");
+        TenantDTO tenantDTO = tenantServiceImpl.getBasicTenantById(token, tenantId);
+        log.info("END GET TENANT BY ID");
+        return new ResponseEntity<>(tenantDTO, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'TENANT_ADMIN')")
+    @RequestMapping(value = "/updateTenantById/{tenantId}", method = RequestMethod.PUT, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<?> updateTenantById(
+            @RequestHeader("Authorization") String token,
+            @PathVariable Long tenantId,
+            @Valid @RequestBody TenantDTO updateTenantDTO
+    ){
+        log.info("START GET TENANT BY ID");
+        TenantModel updatedTenant = tenantServiceImpl.updateTenantById(token, tenantId, updateTenantDTO);
+        log.info("END GET TENANT BY ID");
+        return new ResponseEntity<>(updatedTenant, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN')")
