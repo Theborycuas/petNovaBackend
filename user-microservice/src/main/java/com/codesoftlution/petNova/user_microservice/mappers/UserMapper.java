@@ -1,31 +1,42 @@
 package com.codesoftlution.petNova.user_microservice.mappers;
 
-import com.codesoftlution.petNova.user_microservice.dtos.UserDTO;
-import com.codesoftlution.petNova.user_microservice.models.RoleModel;
+import com.codesoftlution.petNova.user_microservice.dtos.UserDetailDTO;
+import com.codesoftlution.petNova.user_microservice.dtos.UserPublicDTO;
 import com.codesoftlution.petNova.user_microservice.models.UserModel;
-import com.codesoftlution.petNova.user_microservice.respositories.IRoleRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public class UserMapper {
 
-    public static UserDTO toUserDTO(final UserModel userModel) {
-        UserDTO userDTO = new UserDTO();
+    public static UserDetailDTO toUserDetailDTO(final UserModel userModel) {
+        UserDetailDTO userDTO = new UserDetailDTO();
         userDTO.setId(userModel.getId());
         userDTO.setName(userModel.getName());
         userDTO.setUsername(userModel.getUsername());
         userDTO.setEmail(userModel.getEmail());
-        userDTO.setPassword(userModel.getPassword());
-        userDTO.setRollName(userModel.getRole().getRoleName());
+        userDTO.setIdNumber(userModel.getIdNumber());
+        userDTO.setRole(userModel.getRole());
         userDTO.setPhoneNumber(String.valueOf(userModel.getPhoneNumber()));
+        userDTO.setCity(userModel.getCity());
+        userDTO.setAddress(userModel.getAddress());
         userDTO.setActive(userModel.isActive());
         userDTO.setEmailVerified(userModel.isEmailVerified());
-        userDTO.setCreationDate(userModel.getCreationDate());
-        userDTO.setUpdateDate(userModel.getUpdateDate());
-        userDTO.setLinkPerfilPhoto(userModel.getLinkPerfilPhoto());
+        userDTO.setCreatedAt(userModel.getCreatedAt());
+        userDTO.setUpdateAt(userModel.getUpdateAt());
+        userDTO.setAvatarUrl(userModel.getAvatarUrl());
         userDTO.setOfficeId(userModel.getOfficeId());
+        userDTO.setTenantId(userModel.getTenantId());
         return userDTO;
     }
-    public static UserModel toUserModel(final UserDTO userDTO) {
+
+    public static UserPublicDTO toUserPublicDTO(final UserModel userModel) {
+        UserPublicDTO userDTO = new UserPublicDTO();
+        userDTO.setId(userModel.getId());
+        userDTO.setName(userModel.getName());
+        userDTO.setEmail(userModel.getEmail());
+        userDTO.setAvatarUrl(userModel.getAvatarUrl());
+        return userDTO;
+    }
+
+   /* public static UserModel toUserModel(final UserDTO userDTO) {
         UserModel userModel = new UserModel();
         userModel.setId(userDTO.getId());
         userModel.setName(userDTO.getName());
@@ -35,11 +46,11 @@ public class UserMapper {
         userModel.setPhoneNumber(String.valueOf(userDTO.getPhoneNumber()));
         userModel.setActive(userDTO.isActive());
         userModel.setEmailVerified(userDTO.isEmailVerified());
-        userModel.setCreationDate(userDTO.getCreationDate());
-        userModel.setUpdateDate(userDTO.getUpdateDate());
-        userModel.setLinkPerfilPhoto(userDTO.getLinkPerfilPhoto());
+        userModel.setCreatedAt(userDTO.getCreationDate());
+        userModel.setUpdateAt(userDTO.getUpdateDate());
+        userModel.setAvatarUrl(userDTO.getAvatarUrl());
         userModel.setOfficeId(userDTO.getOfficeId());
         return userModel;
-    }
+    }*/
 
 }

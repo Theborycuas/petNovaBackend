@@ -9,7 +9,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 @Entity
 @Getter
@@ -32,35 +31,50 @@ public class UserModel implements UserDetails{
     @Column(unique = true, nullable = false)
     private String username;
 
+    private String address;
+    private String city;
+
     @Column(unique = true, nullable = false)
     private String email;
     @Column(nullable = false)
     private String password;
 
+    private String passwordResetToken;
+    private LocalDateTime passwordResetTokenExpiry;
+
     @ManyToOne
     @JoinColumn(name = "role_id", nullable = false)
     private RoleModel role;
 
+    @Column(nullable = false, unique = true)
     private String phoneNumber;
 
     @Column(nullable = false)
     private boolean active = false;
 
+    private String gender;
+
     @Column(nullable = false)
     private boolean emailVerified = false;
-
-    private boolean borrado;
+    private LocalDateTime emailVerifiedAt;
 
     @Column(columnDefinition = "TEXT")
     private String firebaseToken;
 
-    private LocalDateTime creationDate;
-    private LocalDateTime updateDate;
+    private LocalDateTime createdAt;
+    private LocalDateTime updateAt;
 
     @Column(columnDefinition = "TEXT")
-    private String linkPerfilPhoto;
+    private String avatarUrl;
 
     private Long officeId;
+
+    private Long tenantId;
+
+    private String preferredLanguage;
+    private String timeZone;
+    private LocalDateTime lastLoginAt;
+    private boolean notificationsEnabled = true;
 
     private LocalDateTime deletedAt;
     public void softDelete() {

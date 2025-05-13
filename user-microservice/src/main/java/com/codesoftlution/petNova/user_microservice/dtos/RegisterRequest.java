@@ -17,11 +17,12 @@ public class RegisterRequest {
     private String idNumber;
     private String username;
     private String email;
+    private String address;
     private String password;
     private String phoneNumber;
-    private boolean active;
+    private String avatarUrl;
     private LocalDateTime creationDate;
     private String linkPerfilPhoto;
-
     private Long officeId;
+    private Long tenantId;
 }

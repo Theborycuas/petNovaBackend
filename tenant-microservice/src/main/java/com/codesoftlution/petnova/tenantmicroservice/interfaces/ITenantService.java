@@ -15,11 +15,11 @@ import java.util.Optional;
 @Service
 public interface ITenantService {
 
-    public TenantModel createTenant(TenantModel tenantModel);
+    TenantModel createTenant(TenantModel tenantModel);
 
-    public List<TenantModel> getAllTenants();
+    List<TenantModel> getAllTenants();
 
-    public Optional<TenantModel> getTenantById(Long id);
+    Optional<TenantModel> getTenantById(Long id);
 
-    public boolean deleteTenantById(String token, Long tenantId);
+    boolean deleteTenantById(String token, Long tenantId);
 }

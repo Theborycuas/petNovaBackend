@@ -4,7 +4,7 @@ import com.codesoftlution.petNova.user_microservice.request.AuthRequest;
 import com.codesoftlution.petNova.user_microservice.response.AuthResponse;
 import com.codesoftlution.petNova.user_microservice.dtos.RegisterRequest;
 import com.codesoftlution.petNova.user_microservice.response.AuthSesionResponse;
-import com.codesoftlution.petNova.user_microservice.services.AuthService;
+import com.codesoftlution.petNova.user_microservice.servicesImpl.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

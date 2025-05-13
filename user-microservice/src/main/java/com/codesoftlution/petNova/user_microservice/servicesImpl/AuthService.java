@@ -1,4 +1,4 @@
-package com.codesoftlution.petNova.user_microservice.services;
+package com.codesoftlution.petNova.user_microservice.servicesImpl;
 
 import com.codesoftlution.petNova.user_microservice.clientsfeign.OfficeFeignClient;
 import com.codesoftlution.petNova.user_microservice.request.AuthRequest;
@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Service
 @RequiredArgsConstructor
@@ -42,9 +43,15 @@ public class AuthService {
     public AuthResponse register(RegisterRequest request) {
         Long officeIdFound = null;
 
+        ZoneId zoneId = ZoneId.systemDefault();
+
+        if(request.getUsername() == null || request.getUsername().isEmpty()) {
+            request.setUsername(request.getEmail());
+        }
+
         if(request.getRole() == null){
             RoleModel role = new RoleModel();
-            role.setId(4L);
+            role.setId(7L);
             request.setRole(role);
         }
         RoleModel role = roleRepository.findById(request.getRole().getId())
@@ -68,8 +75,11 @@ public class AuthService {
                 .idNumber(request.getIdNumber())
                 .phoneNumber(request.getPhoneNumber())
                 .officeId(officeIdFound)
-                .creationDate(LocalDateTime.now())
-                .active(true)
+                .tenantId(request.getTenantId())
+                .createdAt(LocalDateTime.now())
+                .timeZone(String.valueOf(zoneId))
+                .preferredLanguage("ES")
+                .active(false)
                 .emailVerified(false)
                 .build();
         userRepository.save(user);
