@@ -81,9 +81,9 @@ public class UserController {
             @PathVariable("userId") Long userId,
             @Valid @RequestBody UserDetailDTO userDTO
     ) {
-        log.info("START UPDATE USER: " + userId);
+        log.info("START UPDATE USER");
         UserModel updatedUser = userServiceImpl.updateUser(userId, userDTO);
-        log.info("END UPDATE USER: " + userId);
+        log.info("END UPDATE USER");
         return ResponseEntity.status(HttpStatus.OK).body(toUserDetailDTO(updatedUser));
     }
 
@@ -93,6 +93,17 @@ public class UserController {
         boolean userDelete = userServiceImpl.deleteUserById(userId);
         log.info("END DELETE USER BY ID: ");
         return new ResponseEntity<>(userDelete, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/updateUserTenantManage/{userId}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> updateUserTenantManage(
+            @PathVariable("userId") Long userId,
+            @Valid @RequestBody Long tenantId
+    ) {
+        log.info("START UPDATE USER TENANT MANAGER");
+        userServiceImpl.updateUserTenantManage(userId, tenantId);
+        log.info("END UPDATE USER TENANT MANAGER");
+        return ResponseEntity.status(HttpStatus.OK).body(true);
     }
 
     @RequestMapping(value = "/approveVeterinarian/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)

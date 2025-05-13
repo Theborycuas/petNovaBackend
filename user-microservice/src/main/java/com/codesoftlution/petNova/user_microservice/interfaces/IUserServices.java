@@ -10,5 +10,6 @@ public interface IUserServices {
     UserModel createUser(UserModel userModel) ;
     UserModel updateUser(Long userId, UserDetailDTO dto);
     boolean deleteUserById(Long userId);
+    UserModel updateUserTenantManage(Long userId, Long tenantId);
 
 }

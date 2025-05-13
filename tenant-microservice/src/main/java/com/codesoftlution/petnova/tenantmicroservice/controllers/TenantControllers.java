@@ -1,5 +1,6 @@
 package com.codesoftlution.petnova.tenantmicroservice.controllers;
 
+import com.codesoftlution.petnova.tenantmicroservice.dtos.CreateTenantDTO;
 import com.codesoftlution.petnova.tenantmicroservice.models.TenantModel;
 import com.codesoftlution.petnova.tenantmicroservice.servicesImpl.TenantServiceImpl;
 import jakarta.validation.Valid;
@@ -27,10 +28,10 @@ public class TenantControllers {
     @RequestMapping(value = "/createTenant", method = RequestMethod.POST, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> createTenant(
             @RequestHeader("Authorization") String token,
-            @Valid @RequestBody TenantModel tenantModel
+            @Valid @RequestBody CreateTenantDTO createTenantDTO
     ) {
         log.info("START CREATE TENANT");
-        TenantModel savedTenant = tenantServiceImpl.createTenant(tenantModel);
+        TenantModel savedTenant = tenantServiceImpl.createTenant(token, createTenantDTO);
         log.info("END CREATE TENANT");
         return new ResponseEntity<>(savedTenant, HttpStatus.CREATED);
     }

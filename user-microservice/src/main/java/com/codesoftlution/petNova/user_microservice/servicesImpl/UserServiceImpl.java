@@ -98,7 +98,19 @@ public class UserServiceImpl implements IUserServices {
                     .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
             user.setRole(role);
         }
+        user.setUpdateAt(LocalDateTime.now());
 
+        return iUserRepository.save(user);
+    }
+
+    public UserModel updateUserTenantManage(Long userId, Long tenantId) {
+        RoleModel roleTenant = new RoleModel();
+        roleTenant.setId(3L);
+
+        UserModel user = iUserRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        user.setTenantId(tenantId);
+        user.setRole(roleTenant);
         user.setUpdateAt(LocalDateTime.now());
 
         return iUserRepository.save(user);
