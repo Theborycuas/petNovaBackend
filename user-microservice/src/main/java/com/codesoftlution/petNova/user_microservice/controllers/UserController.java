@@ -44,9 +44,9 @@ public class UserController {
     @RequestMapping(value = "/getAllUsers", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> getAllUsers() {
         log.info("START GET ALL USERS");
-        List<UserModel> userModelList = userServiceImpl.getAllUsers();
+        List<UserDetailDTO> userDetailDTOList = userServiceImpl.getAllUsers();
         log.info("END GET ALL USERS");
-        return new ResponseEntity<>(userModelList, HttpStatus.OK);
+        return new ResponseEntity<>(userDetailDTOList, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/getUserDetailById/{userId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -87,31 +87,12 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(toUserDetailDTO(updatedUser));
     }
 
-    @RequestMapping(value = "/deleteMyAccount", method = RequestMethod.DELETE, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<?> deleteMyAccount(
-            @Valid @RequestHeader("Authorization") String token
-    ) {
-        try {
-            log.info("START DELETE MY ACCOUNT");
-            //userService.deleteUser(token);
-            log.info("END DELETE MY ACCOUNT");
-            return ResponseEntity.status(HttpStatus.OK).body("USUARIO ELIMINADO");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
-    }
-
-    @RequestMapping(value = "/deleteUserByAdmin", method = RequestMethod.DELETE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> deleteUserByAdmin(String adminToken, String usernameToDelete) {
-        try {
-            log.info("START DELETE USER BY ADMIN");
-            //userService.deleteUserByAdmin(adminToken, usernameToDelete);
-            log.info("END DELETE USER BY ADMIN");
-            return ResponseEntity.status(HttpStatus.OK).body("USUARIO ELIMINADO");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
-
+    @RequestMapping(value = "/deleteUserById/{userId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> deleteUserById(@PathVariable("userId") Long userId) {
+        log.info("START DELETE USER BY ID: ");
+        boolean userDelete = userServiceImpl.deleteUserById(userId);
+        log.info("END DELETE USER BY ID: ");
+        return new ResponseEntity<>(userDelete, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/approveVeterinarian/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
