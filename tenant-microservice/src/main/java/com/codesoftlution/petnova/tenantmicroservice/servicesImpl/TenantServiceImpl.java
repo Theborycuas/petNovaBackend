@@ -7,18 +7,23 @@ import com.codesoftlution.petnova.tenantmicroservice.dtos.UserPublicDTO;
 import com.codesoftlution.petnova.tenantmicroservice.interfaces.ITenantService;
 import com.codesoftlution.petnova.tenantmicroservice.models.TenantModel;
 import com.codesoftlution.petnova.tenantmicroservice.repositories.ITenantRepository;
+import com.codesoftlution.petnova.tenantmicroservice.request.RequestUpdateTenantManager;
+import feign.FeignException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 import static com.codesoftlution.petnova.tenantmicroservice.mapers.TenantMappers.toTenantDTO;
 import static com.codesoftlution.petnova.tenantmicroservice.mapers.TenantMappers.toTenantModel;
 
 @Service
 public class TenantServiceImpl implements ITenantService {
+    Logger log = Logger.getLogger(TenantServiceImpl.class.getName());
+
     @Autowired
     ITenantRepository tenantRepository;
 
@@ -32,8 +37,13 @@ public class TenantServiceImpl implements ITenantService {
     public TenantModel createTenant(String token, TenantDTO tenantDTO) {
 
         TenantModel tenantSaved = tenantRepository.save(toTenantModel(tenantDTO));
+
+        RequestUpdateTenantManager requestUpdateTenantManager = new RequestUpdateTenantManager();
+        requestUpdateTenantManager.setTenantId(tenantSaved.getId());
+        requestUpdateTenantManager.setDeleted(false);
+
         boolean userUpdate = userFeignClient
-                .updateUserTenantManage(token, tenantDTO.getManagerId(), tenantSaved.getId());
+                .updateUserTenantManage(token, tenantDTO.getManagerId(), requestUpdateTenantManager);
 
         if(!userUpdate) {
             throw new RuntimeException("User update failed");
@@ -80,9 +90,13 @@ public class TenantServiceImpl implements ITenantService {
         }
         tenantFound.setUpdatedAt(LocalDateTime.now());
 
+        RequestUpdateTenantManager requestUpdateTenantManager = new RequestUpdateTenantManager();
+        requestUpdateTenantManager.setTenantId(tenantFound.getId());
+        requestUpdateTenantManager.setDeleted(false);
+
         if(tenantDTO.getManagerId() != null) {
             boolean userUpdate = userFeignClient
-                    .updateUserTenantManage(token, tenantDTO.getManagerId(), tenantFound.getId());
+                    .updateUserTenantManage(token, tenantDTO.getManagerId(), requestUpdateTenantManager);
 
             if(!userUpdate) {
                 throw new RuntimeException("User update failed");
@@ -101,6 +115,16 @@ public class TenantServiceImpl implements ITenantService {
         if (!officesDeleted) {
             throw new RuntimeException("ERROR AL ELIMINAR LOS CONSULTORIOS");
         }
+        RequestUpdateTenantManager requestUpdateTenantManager = new RequestUpdateTenantManager();
+        requestUpdateTenantManager.setTenantId(tenantId);
+        requestUpdateTenantManager.setDeleted(true);
+
+        boolean userUpdate = userFeignClient
+                .updateUserTenantManage(token, 0L, requestUpdateTenantManager);
+
+        if(!userUpdate) {
+            throw new RuntimeException("User update failed");
+        }
         tenantFound.softDelete();
         tenantRepository.save(tenantFound);
 
@@ -113,9 +137,17 @@ public class TenantServiceImpl implements ITenantService {
                 .orElseThrow(() -> new RuntimeException("Tenant no Encontrado"));
 
         TenantDTO tenantDTO = toTenantDTO(tenantModel);
-        UserPublicDTO userPublicDTO = userFeignClient.getUserByTenantId(token, id);
 
-        tenantDTO.setManagerId(userPublicDTO.getId());
+        try {
+            UserPublicDTO userPublicDTO = userFeignClient.getUserByTenantId(token, id);
+            if (userPublicDTO != null) {
+                tenantDTO.setManagerId(userPublicDTO.getId());
+            }
+        } catch (FeignException.NotFound e) {
+            // Usuario no encontrado: dejar managerId como null
+        } catch (FeignException e) {
+            log.warning("Error al obtener usuario por tenantId desde userFeignClient: " + e.getMessage());
+        }
 
         return tenantDTO;
     }

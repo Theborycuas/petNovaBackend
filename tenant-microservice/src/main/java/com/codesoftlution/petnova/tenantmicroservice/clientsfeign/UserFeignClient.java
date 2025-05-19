@@ -1,6 +1,7 @@
 package com.codesoftlution.petnova.tenantmicroservice.clientsfeign;
 
 import com.codesoftlution.petnova.tenantmicroservice.dtos.UserPublicDTO;
+import com.codesoftlution.petnova.tenantmicroservice.request.RequestUpdateTenantManager;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,8 +12,8 @@ public interface UserFeignClient {
     boolean updateUserTenantManage(
             @RequestHeader("Authorization") String token,
             @PathVariable("userId") Long userId,
-            @RequestBody Long tenantId
-    );
+            @RequestBody RequestUpdateTenantManager requestUpdateTenantManager
+            );
 
     @GetMapping("users/getUserByTenantId/{tenantId}")
     UserPublicDTO getUserByTenantId(

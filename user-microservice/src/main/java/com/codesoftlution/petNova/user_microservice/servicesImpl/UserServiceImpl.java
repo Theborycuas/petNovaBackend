@@ -6,11 +6,10 @@ import com.codesoftlution.petNova.user_microservice.interfaces.IUserServices;
 import com.codesoftlution.petNova.user_microservice.mappers.UserMapper;
 import com.codesoftlution.petNova.user_microservice.models.RoleModel;
 import com.codesoftlution.petNova.user_microservice.models.UserModel;
-import com.codesoftlution.petNova.user_microservice.request.RequestUpdateUser;
+import com.codesoftlution.petNova.user_microservice.request.RequestUpdateTenantManager;
 import com.codesoftlution.petNova.user_microservice.respositories.IRoleRepository;
 import com.codesoftlution.petNova.user_microservice.respositories.IUserRepository;
 import com.codesoftlution.petNova.user_microservice.utils.PasswordGenerator;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,7 +18,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -50,6 +48,14 @@ public class UserServiceImpl implements IUserServices {
 
     public List<UserDetailDTO> getAllUsers() {
         List<UserModel> userList = iUserRepository.findAllByDeletedAtIsNull();
+
+        return userList.stream()
+                .map(UserMapper::toUserDetailDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<UserDetailDTO> getAllUsersNoTenantManager() {
+        List<UserModel> userList = iUserRepository.findAllByDeletedAtIsNullAndTenantIdIsNull();
 
         return userList.stream()
                 .map(UserMapper::toUserDetailDTO)
@@ -110,26 +116,32 @@ public class UserServiceImpl implements IUserServices {
     }
 
     @Override
-    public UserModel updateUserTenantManage(Long userId, Long tenantId) {
+    public UserModel updateUserTenantManage(Long userId, RequestUpdateTenantManager requestUpdateTenantManager) {
         RoleModel role7 = new RoleModel();
         role7.setId(7L);
 
-        Optional<UserModel> getUserTenant = iUserRepository.findByTenantId(tenantId);
+        Optional<UserModel> getUserTenant = iUserRepository.findByTenantId(requestUpdateTenantManager.getTenantId());
         getUserTenant.ifPresent(userModel -> userModel.setTenantId(null));
         getUserTenant.ifPresent(userModel -> userModel.setRole(role7));
 
-        iUserRepository.save(getUserTenant.orElseThrow(() -> new RuntimeException("Usuario no encontrado")));
+        UserModel userRoleUser = iUserRepository.save(getUserTenant.orElseThrow(() -> new RuntimeException("Usuario no encontrado")));
 
-        RoleModel roleTenant = new RoleModel();
-        roleTenant.setId(3L);
+        if(!requestUpdateTenantManager.isDeleted()){
 
-        UserModel user = iUserRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-        user.setTenantId(tenantId);
-        user.setRole(roleTenant);
-        user.setUpdateAt(LocalDateTime.now());
+            RoleModel roleTenant = new RoleModel();
+            roleTenant.setId(3L);
 
-        return iUserRepository.save(user);
+            UserModel user = iUserRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+            user.setTenantId(requestUpdateTenantManager.getTenantId());
+            user.setRole(roleTenant);
+            user.setUpdateAt(LocalDateTime.now());
+
+            return iUserRepository.save(user);
+
+        } else {
+            return userRoleUser;
+        }
     }
 
     @Override
@@ -143,9 +155,12 @@ public class UserServiceImpl implements IUserServices {
     }
 
     @Override
-    public UserModel getUserByTenantId(Long tenantId) {
-        return iUserRepository.findByTenantId(tenantId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public Optional<UserModel> getUserByTenantId(Long tenantId) {
+        try {
+            return iUserRepository.findByTenantId(tenantId);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 
     public void approveVeterinarian(Long id){
