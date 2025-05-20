@@ -14,7 +14,7 @@ public class AuthResponse {
     private boolean registered;
     private String kind;
     private String localId;
-    private String pictureUrl;
+    private String avatarUrl;
     private String role;
     private Long officeId;
 }

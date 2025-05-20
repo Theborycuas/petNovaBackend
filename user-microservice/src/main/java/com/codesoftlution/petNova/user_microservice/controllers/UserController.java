@@ -3,6 +3,7 @@ package com.codesoftlution.petNova.user_microservice.controllers;
 import com.codesoftlution.petNova.user_microservice.dtos.UserDetailDTO;
 import com.codesoftlution.petNova.user_microservice.mappers.UserMapper;
 import com.codesoftlution.petNova.user_microservice.models.UserModel;
+import com.codesoftlution.petNova.user_microservice.request.RequestUpdateTenantManager;
 import com.codesoftlution.petNova.user_microservice.request.RequestUpdateUser;
 import com.codesoftlution.petNova.user_microservice.respositories.IRoleRepository;
 import com.codesoftlution.petNova.user_microservice.respositories.IUserRepository;
@@ -17,6 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Logger;
 
 import static com.codesoftlution.petNova.user_microservice.mappers.UserMapper.toUserDetailDTO;
@@ -45,6 +47,15 @@ public class UserController {
     public ResponseEntity<?> getAllUsers() {
         log.info("START GET ALL USERS");
         List<UserDetailDTO> userDetailDTOList = userServiceImpl.getAllUsers();
+        log.info("END GET ALL USERS");
+        return new ResponseEntity<>(userDetailDTOList, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN')")
+    @RequestMapping(value = "/getAllUsersNoTenantManager", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<?> getAllUsersNoTenantManager() {
+        log.info("START GET ALL USERS");
+        List<UserDetailDTO> userDetailDTOList = userServiceImpl.getAllUsersNoTenantManager();
         log.info("END GET ALL USERS");
         return new ResponseEntity<>(userDetailDTOList, HttpStatus.OK);
     }
@@ -81,9 +92,9 @@ public class UserController {
             @PathVariable("userId") Long userId,
             @Valid @RequestBody UserDetailDTO userDTO
     ) {
-        log.info("START UPDATE USER: " + userId);
+        log.info("START UPDATE USER");
         UserModel updatedUser = userServiceImpl.updateUser(userId, userDTO);
-        log.info("END UPDATE USER: " + userId);
+        log.info("END UPDATE USER");
         return ResponseEntity.status(HttpStatus.OK).body(toUserDetailDTO(updatedUser));
     }
 
@@ -93,6 +104,30 @@ public class UserController {
         boolean userDelete = userServiceImpl.deleteUserById(userId);
         log.info("END DELETE USER BY ID: ");
         return new ResponseEntity<>(userDelete, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/updateUserTenantManage/{userId}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> updateUserTenantManage(
+            @PathVariable("userId") Long userId,
+            @Valid @RequestBody RequestUpdateTenantManager requestUpdateTenantManager
+    ) {
+        log.info("START UPDATE USER TENANT MANAGER");
+        userServiceImpl.updateUserTenantManage(userId, requestUpdateTenantManager);
+        log.info("END UPDATE USER TENANT MANAGER");
+        return ResponseEntity.status(HttpStatus.OK).body(true);
+    }
+
+    @RequestMapping(value = "/getUserByTenantId/{tenantId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getUserByTenantId(@PathVariable("tenantId") Long tenantId) {
+        log.info("START GET USER PUBLIC BY ID: ");
+        Optional<UserModel> userFound = userServiceImpl.getUserByTenantId(tenantId);
+        log.info("END GET USER PUBLIC BY ID: ");
+
+        if (userFound.isPresent()) {
+            return ResponseEntity.ok(toUserPublicDTO(userFound.get()));
+        } else {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
     }
 
     @RequestMapping(value = "/approveVeterinarian/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)

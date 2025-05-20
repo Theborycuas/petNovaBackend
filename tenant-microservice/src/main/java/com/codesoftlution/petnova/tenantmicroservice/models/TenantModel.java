@@ -24,6 +24,7 @@ public class TenantModel {
 
     private String contactPhone;
     private String address;
+    private String city;
 
     // Suscripción y facturación
     @Column(nullable = false)

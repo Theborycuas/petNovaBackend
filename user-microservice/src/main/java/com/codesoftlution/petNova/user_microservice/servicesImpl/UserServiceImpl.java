@@ -6,11 +6,10 @@ import com.codesoftlution.petNova.user_microservice.interfaces.IUserServices;
 import com.codesoftlution.petNova.user_microservice.mappers.UserMapper;
 import com.codesoftlution.petNova.user_microservice.models.RoleModel;
 import com.codesoftlution.petNova.user_microservice.models.UserModel;
-import com.codesoftlution.petNova.user_microservice.request.RequestUpdateUser;
+import com.codesoftlution.petNova.user_microservice.request.RequestUpdateTenantManager;
 import com.codesoftlution.petNova.user_microservice.respositories.IRoleRepository;
 import com.codesoftlution.petNova.user_microservice.respositories.IUserRepository;
 import com.codesoftlution.petNova.user_microservice.utils.PasswordGenerator;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,7 +18,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -56,12 +54,26 @@ public class UserServiceImpl implements IUserServices {
                 .collect(Collectors.toList());
     }
 
+    public List<UserDetailDTO> getAllUsersNoTenantManager() {
+        List<UserModel> userList = iUserRepository.findAllByDeletedAtIsNullAndTenantIdIsNull();
+
+        return userList.stream()
+                .map(UserMapper::toUserDetailDTO)
+                .collect(Collectors.toList());
+    }
+
     public UserModel createUser(UserModel userModel) {
         ZoneId zoneId = ZoneId.systemDefault();
         System.out.println("Zona horaria actual: " + zoneId);
 
         if(userModel.getUsername() == null || userModel.getUsername().isEmpty()) {
             userModel.setUsername(userModel.getEmail());
+        }
+
+        if(userModel.getRole() == null) {
+            RoleModel roleModel = new RoleModel();
+            roleModel.setId(7L);
+            userModel.setRole(roleModel);
         }
 
         if(userModel.getPassword() == null || userModel.getPassword().isEmpty()) {
@@ -98,10 +110,38 @@ public class UserServiceImpl implements IUserServices {
                     .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
             user.setRole(role);
         }
-
         user.setUpdateAt(LocalDateTime.now());
 
         return iUserRepository.save(user);
+    }
+
+    @Override
+    public UserModel updateUserTenantManage(Long userId, RequestUpdateTenantManager requestUpdateTenantManager) {
+        RoleModel role7 = new RoleModel();
+        role7.setId(7L);
+
+        Optional<UserModel> getUserTenant = iUserRepository.findByTenantId(requestUpdateTenantManager.getTenantId());
+        getUserTenant.ifPresent(userModel -> userModel.setTenantId(null));
+        getUserTenant.ifPresent(userModel -> userModel.setRole(role7));
+
+        UserModel userRoleUser = iUserRepository.save(getUserTenant.orElseThrow(() -> new RuntimeException("Usuario no encontrado")));
+
+        if(!requestUpdateTenantManager.isDeleted()){
+
+            RoleModel roleTenant = new RoleModel();
+            roleTenant.setId(3L);
+
+            UserModel user = iUserRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+            user.setTenantId(requestUpdateTenantManager.getTenantId());
+            user.setRole(roleTenant);
+            user.setUpdateAt(LocalDateTime.now());
+
+            return iUserRepository.save(user);
+
+        } else {
+            return userRoleUser;
+        }
     }
 
     @Override
@@ -112,6 +152,15 @@ public class UserServiceImpl implements IUserServices {
         userFound.softDelete();
         iUserRepository.save(userFound);
         return true;
+    }
+
+    @Override
+    public Optional<UserModel> getUserByTenantId(Long tenantId) {
+        try {
+            return iUserRepository.findByTenantId(tenantId);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 
     public void approveVeterinarian(Long id){
