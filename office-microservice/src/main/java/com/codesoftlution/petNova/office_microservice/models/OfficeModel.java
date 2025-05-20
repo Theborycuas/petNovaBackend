@@ -45,25 +45,14 @@ public class OfficeModel {
     @Column(nullable = false)
     private boolean emailVerified = false;
 
-    @Column(nullable = false)
-    private String managerName;
-
-    @Column(nullable = false, unique = true)
-    private String managerPhone;
-
-    @Column(nullable = false, unique = true)
-    private String managerEmail;
-
     @Column(updatable = false)
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
     @Column(nullable = false)
     private Long currentPlan;
-
     @Column(nullable = false)
     private LocalDate subscriptionStartDate;
-
     @Column(nullable = false)
     private LocalDate subscriptionEndDate;
 

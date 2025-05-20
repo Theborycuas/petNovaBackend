@@ -41,37 +41,6 @@ public class OfficeService {
             return officeRepository.save(officeModel);
         }
         throw new RuntimeException("No tienes permisos para registrar el Offices");
-
-        //Validar que exista el ususario que crea el consultorio
-
-       /* UserDTO userDTO = userFeignClient.getUserById("Bearer " + token, userId);
-
-        if(!"SUPER_ADMIN".equalsIgnoreCase(userDTO.getRollName()) &&
-                !"VETERINARIO".equalsIgnoreCase(userDTO.getRollName()) &&
-                !"OFFICE_ADMIN".equalsIgnoreCase(userDTO.getRollName())){
-            throw new RuntimeException("NO TIENS PERMISOS PARA CREAR CONSULTORIOS.");
-        }
-
-        //Validar Único nombre y telefono
-        if(officeRepository.existsByName(officeModel.getName())){
-            throw new RuntimeException("El consultorio ya existe");
-        }
-        if(officeRepository.existsByPhoneNumber(officeModel.getPhoneNumber())){
-            throw new RuntimeException("El consultorio ya existe");
-        }
-
-        //Asociar al veterinario si es incluido
-       if(veterinarioId != null){
-            UserDTO veterinario = userFeignClient.getUserById("Bearer " + token, veterinarioId);
-
-            if(!"VETERINARIO".equalsIgnoreCase(veterinario.getRollName())){
-                throw new RuntimeException("El Usuario asignado como responsable no es un Veterinario");
-            }
-            officeModel.setVeterinarioId(veterinario.getId());
-        }
-
-        //Guardar y retornar el Consultorio
-        return officeRepository.save(officeModel);*/
     }
 
     public List<OfficeModel> getAllOffices() {
