@@ -4,6 +4,9 @@ package com.codesoftlution.petNova.office_microservice.services;
 import com.codesoftlution.petNova.office_microservice.clientsfeign.UserFeignClient;
 import com.codesoftlution.petNova.office_microservice.config.JwtUtil;
 import com.codesoftlution.petNova.office_microservice.dtos.OfficeDTO;
+import com.codesoftlution.petNova.office_microservice.dtos.OfficeDetailsDTO;
+import com.codesoftlution.petNova.office_microservice.dtos.UserPublicDTO;
+import com.codesoftlution.petNova.office_microservice.mapers.OfficeMappers;
 import com.codesoftlution.petNova.office_microservice.models.OfficeModel;
 import com.codesoftlution.petNova.office_microservice.repositories.IOfficeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +14,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class OfficeService {
@@ -45,6 +50,30 @@ public class OfficeService {
 
     public List<OfficeModel> getAllOffices() {
         return officeRepository.findAllByDeletedAtIsNull();
+    }
+
+    public List<OfficeDetailsDTO> getAllOfficesDTO(String token) {
+
+        List<OfficeModel> offices = officeRepository.findAllByDeletedAtIsNull();
+        List<OfficeDetailsDTO> officeListDTO = new ArrayList<>();
+
+        for(OfficeModel office : offices) {
+            OfficeDetailsDTO dto = OfficeMappers.toOfficeDetailsDTO(office);
+
+            try {
+                UserPublicDTO user = userFeignClient.getUserByOfficeId(token, office.getId());
+                if (user != null) {
+                    dto.setManagerName(user.getName());
+                } else {
+                    dto.setManagerName(null);
+                }
+            } catch (Exception e) {
+                dto.setManagerName(null);
+            }
+            officeListDTO.add(dto);
+        }
+
+        return officeListDTO;
     }
 
     public Optional<OfficeModel> getOfficeById(Long officeId) {
