@@ -1,6 +1,7 @@
 package com.codesoftlution.petNova.office_microservice.controllers;
 
 import com.codesoftlution.petNova.office_microservice.dtos.OfficeDTO;
+import com.codesoftlution.petNova.office_microservice.dtos.OfficeDetailsDTO;
 import com.codesoftlution.petNova.office_microservice.models.OfficeModel;
 import com.codesoftlution.petNova.office_microservice.services.OfficeService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
+
+import static com.codesoftlution.petNova.office_microservice.mapers.OfficeMappers.toOfficeDetailsDTO;
 
 @RestController
 @RequestMapping("apiPetNova/offices")
@@ -45,13 +48,23 @@ public class OfficeController {
     }
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    @RequestMapping(value = "/listAllOffice", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> listAllOffice() {
-        log.info("START OFFICE LIST ALL OFICE");
-        List<OfficeModel> officeModelList = officeService.getAllOffices();
-        log.info("END OFFICE LIST ALL OFICE");
-        return new ResponseEntity<>(officeModelList, HttpStatus.OK);
+    @RequestMapping(value = "/getAllOfficeDTO", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getAllOfficeDTO(
+            @RequestHeader("Authorization") String token
+    ) {
+        log.info("START GET ALL OFFICE DTO");
+        List<OfficeDetailsDTO> listOfficeDTO = officeService.getAllOfficesDTO(token);
+        log.info("END GET ALL OFFICE DTO");
+        return new ResponseEntity<>(listOfficeDTO, HttpStatus.OK);
+    }
 
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @RequestMapping(value = "/getAllOffice", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getAllOffice() {
+        log.info("START GET ALL OFFICE");
+        List<OfficeModel> officeModelList = officeService.getAllOffices();
+        log.info("END GET ALL OFFICE");
+        return new ResponseEntity<>(officeModelList, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/getOfficeById/{officeId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -61,7 +74,12 @@ public class OfficeController {
             Optional<OfficeModel> officeModel = Optional.ofNullable(officeService.getOfficeById(officeId)
                     .orElseThrow(() -> new RuntimeException("Consultorio no encontrado")));
             log.info("END GET OFICE BY ID: ");
-            return new ResponseEntity<>(officeModel, HttpStatus.OK);
+
+            if (officeModel.isPresent()) {
+                return new ResponseEntity<>(toOfficeDetailsDTO(officeModel.get()), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

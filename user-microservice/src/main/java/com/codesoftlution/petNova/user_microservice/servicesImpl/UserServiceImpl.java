@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
@@ -183,6 +184,15 @@ public class UserServiceImpl implements IUserServices {
     public Optional<UserModel> getUserByTenantId(Long tenantId) {
         try {
             return iUserRepository.findByTenantId(tenantId);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public Optional<UserModel> getUserByOfficeId(Long officeId) {
+        try {
+            return iUserRepository.findByOfficeId(officeId);
         } catch (Exception e) {
             return Optional.empty();
         }

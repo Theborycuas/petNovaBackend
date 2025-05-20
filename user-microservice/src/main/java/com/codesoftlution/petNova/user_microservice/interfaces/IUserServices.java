@@ -16,5 +16,6 @@ public interface IUserServices {
     UserModel updateUserTenantManage(Long userId, RequestUpdateTenantManager requestUpdateTenantManager);
     UserModel updateUserOfficeManage(Long userId, Long officeId);
     Optional<UserModel> getUserByTenantId(Long tenantId);
+    Optional<UserModel> getUserByOfficeId(Long officeId);
 
 }

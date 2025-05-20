@@ -12,6 +12,7 @@ public class OfficeDetailsDTO {
     private Long tenantId;
     private String name;
     private String address;
+    private String city;
     private String contactPhone;
     private String taxId;
     private String logoUrl;
