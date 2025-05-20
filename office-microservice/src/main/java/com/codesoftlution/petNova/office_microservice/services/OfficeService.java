@@ -3,6 +3,7 @@ package com.codesoftlution.petNova.office_microservice.services;
 
 import com.codesoftlution.petNova.office_microservice.clientsfeign.UserFeignClient;
 import com.codesoftlution.petNova.office_microservice.config.JwtUtil;
+import com.codesoftlution.petNova.office_microservice.dtos.OfficeDTO;
 import com.codesoftlution.petNova.office_microservice.models.OfficeModel;
 import com.codesoftlution.petNova.office_microservice.repositories.IOfficeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,25 +88,31 @@ public class OfficeService {
     }
 
 
-    public OfficeModel updateOffice(Long officeId, Long userId, OfficeModel officeModel) {
+    public OfficeModel updateOffice(String token, Long officeId, OfficeDTO officeDTO) {
 
-        /*UserModel userModel = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Usuario no Encontrado"));
-
-        //Validar que se tenga el Rol para crear consultorio
-        if(!"VETERINARIO".equalsIgnoreCase(userModel.getRole().getRoleName()) && !"OFFICE_ADMIN".equalsIgnoreCase(userModel.getRole().getRoleName())){
-            throw new RuntimeException("Solo un administrador o un veterinario pueden registrar consultorios.");
-        }*/
-
-        OfficeModel consultorioEncontrado = officeRepository.findById(officeId)
+        OfficeModel officeFound = officeRepository.findById(officeId)
                 .orElseThrow(() -> new RuntimeException("Consultorio no Encontrado"));
 
-        Optional.ofNullable(officeModel.getName()).ifPresent(consultorioEncontrado::setName);
-        Optional.ofNullable(officeModel.getContactPhone()).ifPresent(consultorioEncontrado::setContactPhone);
-        Optional.ofNullable(officeModel.getAddress()).ifPresent(consultorioEncontrado::setAddress);
-        Optional.ofNullable(officeModel.getLogoUrl()).ifPresent(consultorioEncontrado::setLogoUrl);
+        if (officeDTO.getName() != null) {
+            officeFound.setName(officeDTO.getName());
+        }
+        if (officeDTO.getAddress() != null) {
+            officeFound.setAddress(officeDTO.getAddress());
+        }
+        if (officeDTO.getPhoneNumber() != null) {
+            officeFound.setContactPhone(officeDTO.getPhoneNumber());
+        }
 
-        return officeRepository.save(consultorioEncontrado);
+        officeFound.setUpdatedAt(LocalDateTime.now());
+
+        if(officeDTO.getManagerId() != null) {
+            boolean userUpdate = userFeignClient.updateUserOfficeManage(
+                    token, officeDTO.getManagerId(), officeId);
+            if(!userUpdate) {
+                throw new RuntimeException("User update failed");
+            }
+        }
+        return officeRepository.save(officeFound);
     }
 
     public OfficeModel deleteOfficeById(Long officeId) {

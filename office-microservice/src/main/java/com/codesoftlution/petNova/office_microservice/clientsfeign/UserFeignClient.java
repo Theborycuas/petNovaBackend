@@ -4,9 +4,7 @@ import com.codesoftlution.petNova.office_microservice.dtos.UserDTO;
 import com.codesoftlution.petNova.office_microservice.response.AuthSesionResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.*;
 
 @FeignClient(name = "user-microservice", path = "/apiPetNova")
 public interface UserFeignClient {
@@ -19,5 +17,12 @@ public interface UserFeignClient {
     @GetMapping("/auth/validateUserTokenActive")
     ResponseEntity<AuthSesionResponse> validateTokenActive(
             @RequestHeader("Authorization") String token);
+
+    @PutMapping("/users/updateUserOfficeManage/{userId}")
+    boolean updateUserOfficeManage(
+            @RequestHeader("Authorization") String token,
+            @PathVariable("userId") Long userId,
+            @RequestBody Long officeId
+    );
 
 }

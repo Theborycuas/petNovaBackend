@@ -14,6 +14,7 @@ public interface IUserServices {
     UserModel updateUser(Long userId, UserDetailDTO dto);
     boolean deleteUserById(Long userId);
     UserModel updateUserTenantManage(Long userId, RequestUpdateTenantManager requestUpdateTenantManager);
+    UserModel updateUserOfficeManage(Long userId, Long officeId);
     Optional<UserModel> getUserByTenantId(Long tenantId);
 
 }
