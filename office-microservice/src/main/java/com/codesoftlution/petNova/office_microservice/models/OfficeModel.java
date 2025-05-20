@@ -26,6 +26,8 @@ public class OfficeModel {
 
     @Column(nullable = false)
     private String address;
+    private String city;
+
 
     @Column(name = "contact_phone", nullable = false, unique = true)
     private String contactPhone;

@@ -74,7 +74,12 @@ public class OfficeController {
             Optional<OfficeModel> officeModel = Optional.ofNullable(officeService.getOfficeById(officeId)
                     .orElseThrow(() -> new RuntimeException("Consultorio no encontrado")));
             log.info("END GET OFICE BY ID: ");
-            return new ResponseEntity<>(officeModel, HttpStatus.OK);
+
+            if (officeModel.isPresent()) {
+                return new ResponseEntity<>(toOfficeDetailsDTO(officeModel.get()), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

@@ -16,6 +16,7 @@ public class OfficeMappers {
         dto.setTenantId(model.getTenantId());
         dto.setName(model.getName());
         dto.setAddress(model.getAddress());
+        dto.setCity(model.getCity());
         dto.setContactPhone(model.getContactPhone());
         dto.setTaxId(model.getTaxId());
         dto.setLogoUrl(model.getLogoUrl());
@@ -42,6 +43,7 @@ public class OfficeMappers {
         model.setTenantId(dto.getTenantId());
         model.setName(dto.getName());
         model.setAddress(dto.getAddress());
+        model.setCity(dto.getCity());
         model.setContactPhone(dto.getContactPhone());
         model.setTaxId(dto.getTaxId());
         model.setLogoUrl(dto.getLogoUrl());
