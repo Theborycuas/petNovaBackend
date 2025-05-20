@@ -4,6 +4,7 @@ import com.codesoftlution.petNova.user_microservice.models.RoleModel;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class UserDetailDTO {
@@ -20,8 +21,8 @@ public class UserDetailDTO {
     private boolean emailVerified;
     private String preferredLanguage;
     private String timeZone;
-    private Long officeId;
-    private Long tenantId;
+    private List<Long> tenantIds;
+    private List<Long> officeIds;
     private RoleModel role;
     private LocalDateTime createdAt;
     private LocalDateTime updateAt;

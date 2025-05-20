@@ -67,10 +67,6 @@ public class UserModel implements UserDetails{
     @Column(columnDefinition = "TEXT")
     private String avatarUrl;
 
-    private Long officeId;
-
-    private Long tenantId;
-
     private String preferredLanguage;
     private String timeZone;
     private LocalDateTime lastLoginAt;

@@ -42,7 +42,6 @@ public class JwtService {
 
         if (userDetails instanceof UserModel) {
             UserModel user = (UserModel) userDetails;
-            extraClaims.put("officeId", user.getOfficeId());
             String role = user.getRole().getRoleName();
             extraClaims.put("role", role);
         }

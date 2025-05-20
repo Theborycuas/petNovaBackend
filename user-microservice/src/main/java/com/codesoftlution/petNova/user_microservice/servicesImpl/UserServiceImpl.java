@@ -2,16 +2,19 @@ package com.codesoftlution.petNova.user_microservice.servicesImpl;
 
 import com.codesoftlution.petNova.user_microservice.clientsfeign.OfficeFeignClient;
 import com.codesoftlution.petNova.user_microservice.dtos.UserDetailDTO;
+import com.codesoftlution.petNova.user_microservice.dtos.UserPublicDTO;
 import com.codesoftlution.petNova.user_microservice.interfaces.IUserServices;
 import com.codesoftlution.petNova.user_microservice.mappers.UserMapper;
-import com.codesoftlution.petNova.user_microservice.models.RoleModel;
-import com.codesoftlution.petNova.user_microservice.models.UserModel;
+import com.codesoftlution.petNova.user_microservice.models.*;
 import com.codesoftlution.petNova.user_microservice.request.RequestUpdateTenantManager;
 import com.codesoftlution.petNova.user_microservice.respositories.IRoleRepository;
 import com.codesoftlution.petNova.user_microservice.respositories.IUserRepository;
+import com.codesoftlution.petNova.user_microservice.respositories.UserOfficeRelationRepository;
+import com.codesoftlution.petNova.user_microservice.respositories.UserTenantRelationRepository;
 import com.codesoftlution.petNova.user_microservice.utils.PasswordGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -19,8 +22,10 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,6 +38,12 @@ public class UserServiceImpl implements IUserServices {
 
     @Autowired
     OfficeFeignClient officeFeignClient;
+
+    @Autowired
+    UserOfficeRelationRepository userOfficeRelationRepository;
+
+    @Autowired
+    UserTenantRelationRepository userTenantRelationRepository;
 
 
     private final PasswordEncoder passwordEncoder;
@@ -47,19 +58,62 @@ public class UserServiceImpl implements IUserServices {
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
+    public UserDetailDTO getUserDetailById(Long userId) {
+        UserModel user = iUserRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        List<Long> tenantIds = userTenantRelationRepository.findById_UserId(userId)
+                .stream()
+                .map(rel -> rel.getId().getTenantId())
+                .toList();
+
+        List<Long> officeIds = userOfficeRelationRepository.findById_UserId(userId)
+                .stream()
+                .map(rel -> rel.getId().getOfficeId())
+                .toList();
+
+        return UserMapper.toUserDetailDTO(user, tenantIds, officeIds);
+    }
+
     public List<UserDetailDTO> getAllUsers() {
         List<UserModel> userList = iUserRepository.findAllByDeletedAtIsNull();
 
         return userList.stream()
-                .map(UserMapper::toUserDetailDTO)
+                .map(user -> {
+                    List<Long> tenantIds = userTenantRelationRepository.findById_UserId(user.getId())
+                            .stream()
+                            .map(rel -> rel.getId().getTenantId())
+                            .collect(Collectors.toList());
+
+                    List<Long> officeIds = userOfficeRelationRepository.findById_UserId(user.getId())
+                            .stream()
+                            .map(rel -> rel.getId().getOfficeId())
+                            .collect(Collectors.toList());
+
+                    return UserMapper.toUserDetailDTO(user, tenantIds, officeIds);
+                })
                 .collect(Collectors.toList());
     }
 
     public List<UserDetailDTO> getAllUsersNoTenantManager() {
-        List<UserModel> userList = iUserRepository.findAllByDeletedAtIsNullAndTenantIdIsNull();
+        List<UserModel> allUsers = iUserRepository.findAllByDeletedAtIsNull();
 
-        return userList.stream()
-                .map(UserMapper::toUserDetailDTO)
+        Set<Long> usersWithTenants = userTenantRelationRepository.findAllUserIdsWithTenants();
+
+        List<UserModel> usersWithoutTenants = allUsers.stream()
+                .filter(user -> !usersWithTenants.contains(user.getId()))
+                .collect(Collectors.toList());
+
+        return usersWithoutTenants.stream()
+                .map(user -> {
+                    List<Long> tenantIds = List.of(); // vacío porque no tiene tenants
+                    List<Long> officeIds = userOfficeRelationRepository.findById_UserId(user.getId())
+                            .stream()
+                            .map(rel -> rel.getId().getOfficeId())
+                            .collect(Collectors.toList());
+
+                    return UserMapper.toUserDetailDTO(user, tenantIds, officeIds);
+                })
                 .collect(Collectors.toList());
     }
 
@@ -90,7 +144,7 @@ public class UserServiceImpl implements IUserServices {
         return iUserRepository.save(userModel);
     }
 
-    public UserModel updateUser(Long userId, UserDetailDTO dto) {
+    public UserDetailDTO updateUser(Long userId, UserDetailDTO dto) {
         UserModel user = iUserRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
@@ -103,72 +157,159 @@ public class UserServiceImpl implements IUserServices {
         user.setAvatarUrl(dto.getAvatarUrl());
         user.setPreferredLanguage(dto.getPreferredLanguage());
         user.setTimeZone(dto.getTimeZone());
-        user.setOfficeId(dto.getOfficeId());
-        user.setTenantId(dto.getTenantId());
 
         if (dto.getRole() != null && dto.getRole().getId() != null) {
             RoleModel role = roleRepository.findById(dto.getRole().getId())
                     .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
             user.setRole(role);
         }
+
         user.setUpdateAt(LocalDateTime.now());
 
-        return iUserRepository.save(user);
+        // Guardar datos básicos del usuario
+        user = iUserRepository.save(user);
+
+        // Actualizar relaciones con TENANTS
+        if (dto.getTenantIds() != null) {
+            userTenantRelationRepository.deleteById_UserId(userId);
+            dto.getTenantIds().forEach(tenantId -> {
+                UserTenantKey key = new UserTenantKey(userId, tenantId);
+                UserTenantRelation relation = new UserTenantRelation(key, "TENANT_USER", "ACTIVE");
+                userTenantRelationRepository.save(relation);
+            });
+        }
+
+        // Actualizar relaciones con OFFICES
+        if (dto.getOfficeIds() != null) {
+            userOfficeRelationRepository.deleteById_UserId(userId);
+            dto.getOfficeIds().forEach(officeId -> {
+                UserOfficeKey key = new UserOfficeKey(userId, officeId);
+                UserOfficeRelation relation = new UserOfficeRelation(key, "VETERINARIO", "ACTIVE");
+                userOfficeRelationRepository.save(relation);
+            });
+        }
+
+        // Obtener relaciones actualizadas
+        List<Long> tenantIds = userTenantRelationRepository.findById_UserId(userId)
+                .stream()
+                .map(rel -> rel.getId().getTenantId())
+                .toList();
+
+        List<Long> officeIds = userOfficeRelationRepository.findById_UserId(userId)
+                .stream()
+                .map(rel -> rel.getId().getOfficeId())
+                .toList();
+
+        return UserMapper.toUserDetailDTO(user, tenantIds, officeIds);
     }
+
+
 
     @Override
-    public UserModel updateUserTenantManage(Long userId, RequestUpdateTenantManager requestUpdateTenantManager) {
-        RoleModel role7 = new RoleModel();
-        role7.setId(7L);
+    public List<UserModel> updateUserTenantManage(RequestUpdateTenantManager request) {
+        Long tenantId = request.getTenantId();
+        boolean isDeleted = request.isDeleted();
+        List<Long> newManagerIds = request.getManagerIds();
 
-        Optional<UserModel> getUserTenant = iUserRepository.findByTenantId(requestUpdateTenantManager.getTenantId());
-        getUserTenant.ifPresent(userModel -> userModel.setTenantId(null));
-        getUserTenant.ifPresent(userModel -> userModel.setRole(role7));
+        RoleModel roleUser = new RoleModel();
+        roleUser.setId(7L); // Rol básico
 
-        UserModel userRoleUser = iUserRepository.save(getUserTenant.orElseThrow(() -> new RuntimeException("Usuario no encontrado")));
+        RoleModel roleManager = new RoleModel();
+        roleManager.setId(3L); // Rol TENANT_ADMIN
 
-        if (!requestUpdateTenantManager.isDeleted()) {
+        // Paso 1: Eliminar TODAS las relaciones TENANT_ADMIN actuales del tenant
+        List<UserTenantRelation> currentManagers = userTenantRelationRepository.findById_TenantId(tenantId)
+                .stream()
+                .filter(rel -> "TENANT_ADMIN".equalsIgnoreCase(rel.getRole()))
+                .toList();
 
-            RoleModel roleTenant = new RoleModel();
-            roleTenant.setId(3L);
+        for (UserTenantRelation rel : currentManagers) {
+            Long oldUserId = rel.getId().getUserId();
 
-            UserModel user = iUserRepository.findById(userId)
-                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-            user.setTenantId(requestUpdateTenantManager.getTenantId());
-            user.setRole(roleTenant);
-            user.setUpdateAt(LocalDateTime.now());
+            // Eliminar la relación
+            userTenantRelationRepository.deleteById(rel.getId());
 
-            return iUserRepository.save(user);
-
-        } else {
-            return userRoleUser;
+            // Cambiar rol general a USER
+            UserModel oldUser = iUserRepository.findById(oldUserId)
+                    .orElseThrow(() -> new RuntimeException("Usuario anterior no encontrado"));
+            oldUser.setRole(roleUser);
+            oldUser.setUpdateAt(LocalDateTime.now());
+            iUserRepository.save(oldUser);
         }
+
+        List<UserModel> updatedManagers = new ArrayList<>();
+
+        // Paso 2: Si no es eliminación, agregar los nuevos administradores
+        if (!isDeleted && newManagerIds != null) {
+            for (Long userId : newManagerIds) {
+                UserModel user = iUserRepository.findById(userId)
+                        .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+                // Crear nueva relación con rol TENANT_ADMIN
+                UserTenantKey key = new UserTenantKey(userId, tenantId);
+                UserTenantRelation relation = new UserTenantRelation(key, "TENANT_ADMIN", "ACTIVE");
+                userTenantRelationRepository.save(relation);
+
+                // Asignar rol general también si aplica
+                user.setRole(roleManager);
+                user.setUpdateAt(LocalDateTime.now());
+                updatedManagers.add(iUserRepository.save(user));
+            }
+        }
+
+        return updatedManagers;
     }
+
+
 
     @Override
     public UserModel updateUserOfficeManage(Long userId, Long officeId) {
-        RoleModel role7 = new RoleModel();
-        role7.setId(7L);
+        // Rol general para usuario normal
+        RoleModel roleUser = new RoleModel();
+        roleUser.setId(7L); // ID de usuario normal
 
-        Optional<UserModel> getUserTenant = iUserRepository.findByOfficeId(officeId);
-        getUserTenant.ifPresent(userModel -> userModel.setTenantId(null));
-        getUserTenant.ifPresent(userModel -> userModel.setRole(role7));
+        // Rol general para administrador de oficina
+        RoleModel roleOfficeAdmin = new RoleModel();
+        roleOfficeAdmin.setId(4L); // ID de OFFICE_ADMIN
 
-        iUserRepository.save(getUserTenant.orElseThrow(() -> new RuntimeException("Usuario no encontrado")));
+        // Paso 1: Encontrar al usuario actual con rol OFFICE_ADMIN en esa oficina
+        Optional<UserOfficeRelation> currentRelationOpt = userOfficeRelationRepository.findById_OfficeId(officeId)
+                .stream()
+                .filter(rel -> "OFFICE_ADMIN".equalsIgnoreCase(rel.getRole()))
+                .findFirst();
 
+        currentRelationOpt.ifPresent(relation -> {
+            Long previousUserId = relation.getId().getUserId();
 
-        RoleModel roleTenant = new RoleModel();
-        roleTenant.setId(4L);
+            // Eliminar la relación actual
+            userOfficeRelationRepository.deleteById(relation.getId());
 
-        UserModel user = iUserRepository.findById(userId)
+            // Cambiar rol global del usuario a "normal"
+            UserModel previousUser = iUserRepository.findById(previousUserId)
+                    .orElseThrow(() -> new RuntimeException("Usuario anterior no encontrado"));
+
+            previousUser.setRole(roleUser);
+            previousUser.setUpdateAt(LocalDateTime.now());
+
+            iUserRepository.save(previousUser);
+        });
+
+        // Paso 2: Asignar nuevo usuario como administrador de oficina
+        UserModel newAdmin = iUserRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-        user.setOfficeId(officeId);
-        user.setRole(roleTenant);
-        user.setUpdateAt(LocalDateTime.now());
 
-        return iUserRepository.save(user);
+        // Crear nueva relación user ↔ office con rol OFFICE_ADMIN
+        UserOfficeKey key = new UserOfficeKey(userId, officeId);
+        UserOfficeRelation newRelation = new UserOfficeRelation(key, "OFFICE_ADMIN", "ACTIVE");
+        userOfficeRelationRepository.save(newRelation);
 
+        // Asignar rol global al usuario
+        newAdmin.setRole(roleOfficeAdmin);
+        newAdmin.setUpdateAt(LocalDateTime.now());
+
+        return iUserRepository.save(newAdmin);
     }
+
 
     @Override
     public boolean deleteUserById(Long userId) {
@@ -181,21 +322,19 @@ public class UserServiceImpl implements IUserServices {
     }
 
     @Override
-    public Optional<UserModel> getUserByTenantId(Long tenantId) {
-        try {
-            return iUserRepository.findByTenantId(tenantId);
-        } catch (Exception e) {
-            return Optional.empty();
-        }
+    public List<UserPublicDTO> getUsersByTenantId(Long tenantId) {
+        List<Long> adminIds = userTenantRelationRepository.findAdminUserIdsByTenantId(tenantId);
+        return iUserRepository.findAllById(adminIds).stream()
+                .map(UserMapper::toUserPublicDTO)
+                .toList();
     }
+
 
     @Override
     public Optional<UserModel> getUserByOfficeId(Long officeId) {
-        try {
-            return iUserRepository.findByOfficeId(officeId);
-        } catch (Exception e) {
-            return Optional.empty();
-        }
+        return userOfficeRelationRepository.findOfficeAdminByOfficeId(officeId)
+                .map(rel -> iUserRepository.findById(rel.getId().getUserId()))
+                .orElse(Optional.empty());
     }
 
     public void approveVeterinarian(Long id) {

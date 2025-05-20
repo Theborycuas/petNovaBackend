@@ -5,18 +5,19 @@ import com.codesoftlution.petnova.tenantmicroservice.request.RequestUpdateTenant
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @FeignClient(name = "user-microservice", path = "/apiPetNova")
 public interface UserFeignClient {
 
-    @PutMapping("/users/updateUserTenantManage/{userId}")
+    @PutMapping("/users/updateUserTenantManage")
     boolean updateUserTenantManage(
             @RequestHeader("Authorization") String token,
-            @PathVariable("userId") Long userId,
             @RequestBody RequestUpdateTenantManager requestUpdateTenantManager
             );
 
-    @GetMapping("users/getUserByTenantId/{tenantId}")
-    UserPublicDTO getUserByTenantId(
+    @GetMapping("users/getUsersByTenantId/{tenantId}")
+    List<UserPublicDTO> getUsersByTenantId(
             @RequestHeader("Authorization") String token,
             @PathVariable("tenantId") Long tenantId
     );

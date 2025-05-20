@@ -1,6 +1,7 @@
 package com.codesoftlution.petnova.tenantmicroservice.interfaces;
 
 import com.codesoftlution.petnova.tenantmicroservice.dtos.TenantDTO;
+import com.codesoftlution.petnova.tenantmicroservice.dtos.TenantDetailDTO;
 import com.codesoftlution.petnova.tenantmicroservice.models.TenantModel;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +15,7 @@ public interface ITenantService {
 
     List<TenantModel> getAllTenants();
 
-    Optional<TenantModel> getTenantById(Long id);
+    TenantDetailDTO getTenantById( String token, Long id);
 
     TenantModel updateTenantById(String token, Long id, TenantDTO tenantDTO);
 

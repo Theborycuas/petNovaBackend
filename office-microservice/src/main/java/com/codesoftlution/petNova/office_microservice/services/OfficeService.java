@@ -63,12 +63,12 @@ public class OfficeService {
             try {
                 UserPublicDTO user = userFeignClient.getUserByOfficeId(token, office.getId());
                 if (user != null) {
-                    dto.setManagerName(user.getName());
+                    //dto.setManagerName(user.getName());
                 } else {
-                    dto.setManagerName(null);
+                    //dto.setManagerName(null);
                 }
             } catch (Exception e) {
-                dto.setManagerName(null);
+                //dto.setManagerName(null);
             }
             officeListDTO.add(dto);
         }
