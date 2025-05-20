@@ -1,5 +1,6 @@
 package com.codesoftlution.petNova.office_microservice.controllers;
 
+import com.codesoftlution.petNova.office_microservice.dtos.OfficeDTO;
 import com.codesoftlution.petNova.office_microservice.models.OfficeModel;
 import com.codesoftlution.petNova.office_microservice.services.OfficeService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -76,14 +77,14 @@ public class OfficeController {
         return new ResponseEntity<>(officeModelList, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/updateOfficeById/{officeId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/updateOfficeById/{officeId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> updateOfficeById(
+            @RequestHeader("Authorization") String token,
             @Valid @PathVariable Long officeId,
-            @Valid @RequestParam Long userId,
-            @Valid @RequestBody OfficeModel officeModel) {
+            @Valid @RequestBody OfficeDTO officeDTO) {
         try {
             log.info("START OFFICE UPDATE BY ID");
-            OfficeModel officeModelEncontrado = officeService.updateOffice(officeId, userId, officeModel);
+            OfficeModel officeModelEncontrado = officeService.updateOffice(token, officeId, officeDTO);
             log.info("END OFFICE UPDATE BY ID");
             return new ResponseEntity<>(officeModelEncontrado, HttpStatus.OK);
         } catch (Exception e) {

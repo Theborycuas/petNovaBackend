@@ -20,6 +20,5 @@ public class OfficeDTO {
     private String address;
     private String phoneNumber;
     private String linkLogoPhoto;
-    private boolean active;
-    private Long veterinarioId;
+    private Long managerId;
 }

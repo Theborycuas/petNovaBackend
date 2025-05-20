@@ -66,17 +66,17 @@ public class UserServiceImpl implements IUserServices {
         ZoneId zoneId = ZoneId.systemDefault();
         System.out.println("Zona horaria actual: " + zoneId);
 
-        if(userModel.getUsername() == null || userModel.getUsername().isEmpty()) {
+        if (userModel.getUsername() == null || userModel.getUsername().isEmpty()) {
             userModel.setUsername(userModel.getEmail());
         }
 
-        if(userModel.getRole() == null) {
+        if (userModel.getRole() == null) {
             RoleModel roleModel = new RoleModel();
             roleModel.setId(7L);
             userModel.setRole(roleModel);
         }
 
-        if(userModel.getPassword() == null || userModel.getPassword().isEmpty()) {
+        if (userModel.getPassword() == null || userModel.getPassword().isEmpty()) {
             userModel.setPassword(PasswordGenerator.generatePassword(userModel.getName(),
                     userModel.getPhoneNumber(), userModel.getEmail()));
         }
@@ -126,7 +126,7 @@ public class UserServiceImpl implements IUserServices {
 
         UserModel userRoleUser = iUserRepository.save(getUserTenant.orElseThrow(() -> new RuntimeException("Usuario no encontrado")));
 
-        if(!requestUpdateTenantManager.isDeleted()){
+        if (!requestUpdateTenantManager.isDeleted()) {
 
             RoleModel roleTenant = new RoleModel();
             roleTenant.setId(3L);
@@ -142,6 +142,31 @@ public class UserServiceImpl implements IUserServices {
         } else {
             return userRoleUser;
         }
+    }
+
+    @Override
+    public UserModel updateUserOfficeManage(Long userId, Long officeId) {
+        RoleModel role7 = new RoleModel();
+        role7.setId(7L);
+
+        Optional<UserModel> getUserTenant = iUserRepository.findByOfficeId(officeId);
+        getUserTenant.ifPresent(userModel -> userModel.setTenantId(null));
+        getUserTenant.ifPresent(userModel -> userModel.setRole(role7));
+
+        iUserRepository.save(getUserTenant.orElseThrow(() -> new RuntimeException("Usuario no encontrado")));
+
+
+        RoleModel roleTenant = new RoleModel();
+        roleTenant.setId(4L);
+
+        UserModel user = iUserRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        user.setOfficeId(officeId);
+        user.setRole(roleTenant);
+        user.setUpdateAt(LocalDateTime.now());
+
+        return iUserRepository.save(user);
+
     }
 
     @Override
@@ -163,11 +188,11 @@ public class UserServiceImpl implements IUserServices {
         }
     }
 
-    public void approveVeterinarian(Long id){
+    public void approveVeterinarian(Long id) {
         UserModel userFound = iUserRepository.findById(id)
-                .orElseThrow(()->new RuntimeException("USUARIO NO ENCONTRADO"));
+                .orElseThrow(() -> new RuntimeException("USUARIO NO ENCONTRADO"));
 
-        if(!userFound.getRole().getRoleName().equals("VETERINARIO")){
+        if (!userFound.getRole().getRoleName().equals("VETERINARIO")) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "EL USUARIO NO ES UN VETERINARIO");
         }
         userFound.setActive(true);

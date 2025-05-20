@@ -1,10 +1,8 @@
 package com.codesoftlution.petNova.user_microservice.controllers;
 
 import com.codesoftlution.petNova.user_microservice.dtos.UserDetailDTO;
-import com.codesoftlution.petNova.user_microservice.mappers.UserMapper;
 import com.codesoftlution.petNova.user_microservice.models.UserModel;
 import com.codesoftlution.petNova.user_microservice.request.RequestUpdateTenantManager;
-import com.codesoftlution.petNova.user_microservice.request.RequestUpdateUser;
 import com.codesoftlution.petNova.user_microservice.respositories.IRoleRepository;
 import com.codesoftlution.petNova.user_microservice.respositories.IUserRepository;
 import com.codesoftlution.petNova.user_microservice.servicesImpl.UserServiceImpl;
@@ -128,6 +126,17 @@ public class UserController {
         } else {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         }
+    }
+
+    @RequestMapping(value = "/updateUserOfficeManage/{userId}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> updateUserOfficeManage(
+            @PathVariable("userId") Long userId,
+            @Valid @RequestBody Long officeId
+    ) {
+        log.info("START UPDATE USER TENANT MANAGER");
+        userServiceImpl.updateUserOfficeManage(userId, officeId);
+        log.info("END UPDATE USER TENANT MANAGER");
+        return ResponseEntity.status(HttpStatus.OK).body(true);
     }
 
     @RequestMapping(value = "/approveVeterinarian/{id}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
