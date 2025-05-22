@@ -32,9 +32,9 @@ public class TenantControllers {
             @Valid @RequestBody TenantDTO tenantDTO
     ) {
         log.info("START CREATE TENANT");
-        tenantServiceImpl.createTenant(token, tenantDTO);
+        TenantModel tenantSaved = tenantServiceImpl.createTenant(token, tenantDTO);
         log.info("END CREATE TENANT");
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(tenantSaved.getId(), HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
@@ -81,7 +81,7 @@ public class TenantControllers {
         log.info("START GET TENANT BY ID");
         TenantModel updatedTenant = tenantServiceImpl.updateTenantById(token, tenantId, updateTenantDTO);
         log.info("END GET TENANT BY ID");
-        return new ResponseEntity<>(updatedTenant, HttpStatus.OK);
+        return new ResponseEntity<>(updatedTenant.getId(), HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN')")
