@@ -217,48 +217,77 @@ public class UserServiceImpl implements IUserServices {
         RoleModel roleManager = new RoleModel();
         roleManager.setId(3L); // Rol TENANT_ADMIN
 
-        // Paso 1: Eliminar TODAS las relaciones TENANT_ADMIN actuales del tenant
+        // Paso 1: Obtener relaciones actuales activas del tenant
         List<UserTenantRelation> currentManagers = userTenantRelationRepository.findById_TenantId(tenantId)
                 .stream()
                 .filter(rel -> "TENANT_ADMIN".equalsIgnoreCase(rel.getRole()))
+                .filter(rel -> "ACTIVE".equalsIgnoreCase(rel.getStatus()))
                 .toList();
 
         for (UserTenantRelation rel : currentManagers) {
-            Long oldUserId = rel.getId().getUserId();
+            Long userId = rel.getId().getUserId();
 
-            // Eliminar la relación
-            userTenantRelationRepository.deleteById(rel.getId());
+            // Soft delete de la relación
+            rel.setStatus("INACTIVE");
+            userTenantRelationRepository.save(rel);
 
-            // Cambiar rol general a USER
-            UserModel oldUser = iUserRepository.findById(oldUserId)
-                    .orElseThrow(() -> new RuntimeException("Usuario anterior no encontrado"));
-            oldUser.setRole(roleUser);
-            oldUser.setUpdateAt(LocalDateTime.now());
-            iUserRepository.save(oldUser);
+            // Verificar si ese usuario aún es admin en otro tenant
+            boolean sigueSiendoAdmin = userTenantRelationRepository.findById_UserId(userId).stream()
+                    .anyMatch(r ->
+                            "TENANT_ADMIN".equalsIgnoreCase(r.getRole())
+                                    && "ACTIVE".equalsIgnoreCase(r.getStatus())
+                                    && !r.getId().getTenantId().equals(tenantId)
+                    );
+
+            // Si ya no administra ningún otro tenant, bajar el rol
+            if (!sigueSiendoAdmin) {
+                iUserRepository.findById(userId).ifPresent(user -> {
+                    user.setRole(roleUser);
+                    user.setUpdateAt(LocalDateTime.now());
+                    iUserRepository.save(user);
+                });
+            }
         }
 
         List<UserModel> updatedManagers = new ArrayList<>();
 
-        // Paso 2: Si no es eliminación, agregar los nuevos administradores
+        // Paso 2: Asignar nuevos managers (solo si no es eliminación)
         if (!isDeleted && newManagerIds != null) {
             for (Long userId : newManagerIds) {
                 UserModel user = iUserRepository.findById(userId)
                         .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-                // Crear nueva relación con rol TENANT_ADMIN
-                UserTenantKey key = new UserTenantKey(userId, tenantId);
-                UserTenantRelation relation = new UserTenantRelation(key, "TENANT_ADMIN", "ACTIVE");
-                userTenantRelationRepository.save(relation);
+                // Verifica si ya existe la relación activa
+                Optional<UserTenantRelation> existing = userTenantRelationRepository
+                        .findById(new UserTenantKey(userId, tenantId));
 
-                // Asignar rol general también si aplica
-                user.setRole(roleManager);
-                user.setUpdateAt(LocalDateTime.now());
-                updatedManagers.add(iUserRepository.save(user));
+                if (existing.isPresent()) {
+                    UserTenantRelation relation = existing.get();
+                    relation.setStatus("ACTIVE");
+                    relation.setRole("TENANT_ADMIN");
+                    relation.setAssignedAt(LocalDateTime.now());
+                    userTenantRelationRepository.save(relation);
+                } else {
+                    // Nueva relación
+                    UserTenantKey key = new UserTenantKey(userId, tenantId);
+                    UserTenantRelation newRelation = new UserTenantRelation(key, "TENANT_ADMIN", "ACTIVE");
+                    userTenantRelationRepository.save(newRelation);
+                }
+
+                // Si el usuario no tiene el rol de admin, asignárselo
+                if (user.getRole() == null || !user.getRole().getId().equals(roleManager.getId())) {
+                    user.setRole(roleManager);
+                    user.setUpdateAt(LocalDateTime.now());
+                    iUserRepository.save(user);
+                }
+
+                updatedManagers.add(user);
             }
         }
 
         return updatedManagers;
     }
+
 
 
 
