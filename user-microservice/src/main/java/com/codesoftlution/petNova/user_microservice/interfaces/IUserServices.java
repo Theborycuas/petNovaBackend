@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface IUserServices {
     List<UserDetailDTO> getAllUsers();
-    List<UserDetailDTO> getAllUsersNoTenantManager();
+    List<UserDetailDTO> getEligibleUsersForAssignment(String context);
     UserModel createUser(UserModel userModel) ;
     UserDetailDTO updateUser(Long userId, UserDetailDTO dto);
     boolean deleteUserById(Long userId);

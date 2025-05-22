@@ -95,27 +95,42 @@ public class UserServiceImpl implements IUserServices {
                 .collect(Collectors.toList());
     }
 
-    public List<UserDetailDTO> getAllUsersNoTenantManager() {
-        List<UserModel> allUsers = iUserRepository.findAllByDeletedAtIsNull();
+    public List<UserDetailDTO> getEligibleUsersForAssignment(String context) {
+        // Validar que el contexto sea válido
+        if (!Set.of("TENANT", "OFFICE").contains(context.toUpperCase())) {
+            throw new IllegalArgumentException("Context must be 'TENANT' or 'OFFICE'");
+        }
 
-        Set<Long> usersWithTenants = userTenantRelationRepository.findAllUserIdsWithTenants();
+        // 1. Filtrar usuarios activos que no sean ADMIN ni SUPER_ADMIN
+        List<UserModel> eligibleUsers = iUserRepository.findAllByDeletedAtIsNull()
+                .stream()
+                .filter(user -> {
+                    String roleName = user.getRole().getRoleName();
+                    return !Set.of("ADMIN", "SUPER_ADMIN").contains(roleName);
+                })
+                .toList();
 
-        List<UserModel> usersWithoutTenants = allUsers.stream()
-                .filter(user -> !usersWithTenants.contains(user.getId()))
-                .collect(Collectors.toList());
-
-        return usersWithoutTenants.stream()
+        // 2. Mapear DTOs con relaciones activas a tenants y offices (sin filtrar por cantidad)
+        return eligibleUsers.stream()
                 .map(user -> {
-                    List<Long> tenantIds = List.of(); // vacío porque no tiene tenants
+                    List<Long> tenantIds = userTenantRelationRepository.findById_UserId(user.getId())
+                            .stream()
+                            .filter(rel -> "ACTIVE".equals(rel.getStatus()))
+                            .map(rel -> rel.getId().getTenantId())
+                            .toList();
+
                     List<Long> officeIds = userOfficeRelationRepository.findById_UserId(user.getId())
                             .stream()
+                            .filter(rel -> "ACTIVE".equals(rel.getStatus()))
                             .map(rel -> rel.getId().getOfficeId())
-                            .collect(Collectors.toList());
+                            .toList();
 
                     return UserMapper.toUserDetailDTO(user, tenantIds, officeIds);
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
+
+
 
     public UserModel createUser(UserModel userModel) {
         ZoneId zoneId = ZoneId.systemDefault();

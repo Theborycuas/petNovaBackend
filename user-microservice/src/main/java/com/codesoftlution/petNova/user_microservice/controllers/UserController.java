@@ -50,10 +50,12 @@ public class UserController {
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN')")
-    @RequestMapping(value = "/getAllUsersNoTenantManager", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<?> getAllUsersNoTenantManager() {
+    @RequestMapping(value = "/getEligibleUsersForAssignment", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<?> getEligibleUsersForAssignment(
+            @RequestParam String context
+    ) {
         log.info("START GET ALL USERS");
-        List<UserDetailDTO> userDetailDTOList = userServiceImpl.getAllUsersNoTenantManager();
+        List<UserDetailDTO> userDetailDTOList = userServiceImpl.getEligibleUsersForAssignment(context);
         log.info("END GET ALL USERS");
         return new ResponseEntity<>(userDetailDTOList, HttpStatus.OK);
     }
