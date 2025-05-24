@@ -19,6 +19,5 @@ public interface IUserServices {
     List<UserModel> updateUserOfficeManage(RequestUpdateOfficeManager requestUpdateOfficeManager);
     List<UserPublicDTO> getUsersByTenantId(Long tenantId);
     List<UserPublicDTO> getUsersByOfficeId(Long officeId);
-    Optional<UserModel> getUserByOfficeId(Long officeId);
 
 }

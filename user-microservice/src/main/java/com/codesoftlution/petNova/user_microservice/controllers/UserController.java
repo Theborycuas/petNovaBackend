@@ -125,19 +125,6 @@ public class UserController {
 
     }
 
-    @RequestMapping(value = "/getUserByOfficeId/{officeId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getUserByOfficeId(@PathVariable("officeId") Long officeId) {
-        log.info("START GET USER PUBLIC BY OFFICE ID: ");
-        Optional<UserModel> userFound = userServiceImpl.getUserByOfficeId(officeId);
-        log.info("END GET USER PUBLIC BY OFFICE ID: ");
-
-        if (userFound.isPresent()) {
-            return ResponseEntity.ok(toUserPublicDTO(userFound.get()));
-        } else {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        }
-    }
-
     @RequestMapping(value = "/getUsersByOfficeId/{officeId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getUsersByOfficeId(@PathVariable("officeId") Long officeId) {
         log.info("START GET USER PUBLIC BY TENANT ID: ");

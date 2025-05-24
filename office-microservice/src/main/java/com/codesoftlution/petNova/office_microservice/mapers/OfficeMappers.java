@@ -7,6 +7,7 @@ import com.codesoftlution.petNova.office_microservice.models.OfficeModel;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
 
 public class OfficeMappers {
 
@@ -28,7 +29,7 @@ public class OfficeMappers {
     }
 
 
-    public static OfficeDetailsDTO toOfficeDetailsDTO(OfficeModel model) {
+    public static OfficeDetailsDTO toOfficeDetailsDTO(OfficeModel model, final List<Long> managerIds) {
         OfficeDetailsDTO dto = new OfficeDetailsDTO();
 
         dto.setId(model.getId());
@@ -36,6 +37,7 @@ public class OfficeMappers {
         dto.setName(model.getName());
         dto.setAddress(model.getAddress());
         dto.setCity(model.getCity());
+        dto.setManagerIds(managerIds);
         dto.setContactPhone(model.getContactPhone());
         dto.setTaxId(model.getTaxId());
         dto.setLogoUrl(model.getLogoUrl());

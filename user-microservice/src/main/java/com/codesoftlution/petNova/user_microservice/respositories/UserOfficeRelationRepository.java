@@ -20,6 +20,12 @@ public interface UserOfficeRelationRepository extends JpaRepository<UserOfficeRe
     void deleteById_UserIdAndId_OfficeId(Long userId, Long officeId);
     void deleteById_UserId(Long userId);
 
-    @Query("SELECT r FROM UserOfficeRelation r WHERE r.id.officeId = :officeId AND r.role = 'OFFICE_ADMIN'")
-    Optional<UserOfficeRelation> findOfficeAdminByOfficeId(@Param("officeId") Long officeId);
+    @Query("""
+                SELECT r.id.userId 
+                FROM UserOfficeRelation r 
+                WHERE r.id.officeId = :officeId 
+                  AND r.role IN ('OFFICE_ADMIN', 'VETERINARIO', 'RECEPCIONISTA')
+                  AND r.status = 'ACTIVE'
+            """)
+    List<Long> findAdminUserIdsByOfficeId(@Param("officeId") Long officeId);
 }

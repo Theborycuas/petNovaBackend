@@ -1,18 +1,17 @@
 package com.codesoftlution.petNova.office_microservice.clientsfeign;
 
-import com.codesoftlution.petNova.office_microservice.dtos.UserDTO;
 import com.codesoftlution.petNova.office_microservice.dtos.UserPublicDTO;
 import com.codesoftlution.petNova.office_microservice.request.RequestUpdateOfficeManager;
-import com.codesoftlution.petNova.office_microservice.response.AuthSesionResponse;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @FeignClient(name = "user-microservice", path = "/apiPetNova")
 public interface UserFeignClient {
 
-    @GetMapping("users/getUserByOfficeId/{officeId}")
-    UserPublicDTO getUserByOfficeId(
+    @GetMapping("users/getUsersByOfficeId/{officeId}")
+    List<UserPublicDTO> getUsersByOfficeId(
             @RequestHeader("Authorization") String token,
             @PathVariable("officeId") Long officeId
     );

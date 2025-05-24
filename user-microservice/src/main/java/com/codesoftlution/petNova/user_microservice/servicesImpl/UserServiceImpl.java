@@ -408,18 +408,10 @@ public class UserServiceImpl implements IUserServices {
 
     @Override
     public List<UserPublicDTO> getUsersByOfficeId(Long officeId) {
-        List<Long> adminIds = userTenantRelationRepository.findAdminUserIdsByOfficeId(officeId);
+        List<Long> adminIds = userOfficeRelationRepository.findAdminUserIdsByOfficeId(officeId);
         return iUserRepository.findAllById(adminIds).stream()
                 .map(UserMapper::toUserPublicDTO)
                 .toList();
-    }
-
-
-    @Override
-    public Optional<UserModel> getUserByOfficeId(Long officeId) {
-        return userOfficeRelationRepository.findOfficeAdminByOfficeId(officeId)
-                .map(rel -> iUserRepository.findById(rel.getId().getUserId()))
-                .orElse(Optional.empty());
     }
 
     public void approveVeterinarian(Long id) {

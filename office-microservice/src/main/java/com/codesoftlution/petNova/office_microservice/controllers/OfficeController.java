@@ -76,10 +76,27 @@ public class OfficeController {
             log.info("END GET OFICE BY ID: ");
 
             if (officeModel.isPresent()) {
-                return new ResponseEntity<>(toOfficeDetailsDTO(officeModel.get()), HttpStatus.OK);
+                return new ResponseEntity<>(officeModel.get(), HttpStatus.OK);
             } else {
                 return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @RequestMapping(value = "/getOfficeDetailById/{officeId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getOfficeDetailById(
+            @RequestHeader("Authorization") String token,
+            @PathVariable Long officeId) {
+        try {
+            log.info("START GET OFICE BY ID: ");
+            OfficeDetailsDTO officeFound = Optional.ofNullable(officeService.getOfficeDetailById(token, officeId))
+                    .orElseThrow(() -> new RuntimeException("Tenant no Encontrado"));
+            log.info("END GET OFICE BY ID: ");
+            return new ResponseEntity<>(officeFound, HttpStatus.OK);
+
 
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
