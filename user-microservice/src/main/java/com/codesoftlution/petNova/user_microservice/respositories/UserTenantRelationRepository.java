@@ -19,6 +19,7 @@ public interface UserTenantRelationRepository extends JpaRepository<UserTenantRe
     Optional<UserTenantRelation> findById_UserIdAndId_TenantId(Long userId, Long tenantId);
 
     void deleteById_UserIdAndId_TenantId(Long userId, Long tenantId);
+
     void deleteById_UserId(Long userId);
 
     @Query("SELECT DISTINCT r.id.userId FROM UserTenantRelation r")
@@ -29,4 +30,14 @@ public interface UserTenantRelationRepository extends JpaRepository<UserTenantRe
 
     @Query("SELECT r.id.userId FROM UserTenantRelation r WHERE r.id.tenantId = :tenantId AND r.role = 'TENANT_ADMIN'")
     List<Long> findAdminUserIdsByTenantId(@Param("tenantId") Long tenantId);
+
+    @Query("""
+                SELECT r.id.userId 
+                FROM UserOfficeRelation r 
+                WHERE r.id.officeId = :officeId 
+                  AND r.role IN ('OFFICE_ADMIN', 'VETERINARIO', 'RECEPCIONISTA')
+                  AND r.status = 'ACTIVE'
+            """)
+    List<Long> findAdminUserIdsByOfficeId(@Param("officeId") Long officeId);
+
 }

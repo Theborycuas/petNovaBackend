@@ -32,16 +32,16 @@ public class OfficeController {
 
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
-    @RequestMapping(value = "/resgisterOffice", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> resgisterOffice(
+    @RequestMapping(value = "/createOffice", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> createOffice(
             @RequestHeader("Authorization") String token,
-            @Valid @RequestBody OfficeModel officeModel
+            @Valid @RequestBody OfficeDTO officeDTO
     ) {
         try {
             log.info("START OFFICE REGISTER");
-            OfficeModel savedOffice = officeService.officeRegister(token, officeModel);
+            OfficeModel savedOffice = officeService.createOffice(token, officeDTO);
             log.info("END OFFICE REGISTER");
-            return new ResponseEntity<>(savedOffice, HttpStatus.OK);
+            return new ResponseEntity<>(savedOffice.getId(), HttpStatus.CREATED);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
@@ -113,12 +113,13 @@ public class OfficeController {
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'TENANT_ADMIN')")
     @RequestMapping(value = "deleteOfficeById/{officeId}", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> deleteOfficeById(
+            @RequestHeader("Authorization") String token,
             @Valid @PathVariable Long officeId
     ) {
-        log.info("START OFFICE DELETE BY ID");
-        OfficeModel officeModelEncontrado = officeService.deleteOfficeById(officeId);
-        log.info("END OFFICE DELETE BY ID");
-        return new ResponseEntity<>(officeModelEncontrado, HttpStatus.OK);
+        log.info("START DELETE OFFICE BY ID");
+        boolean officeDeleted = officeService.deleteOfficeById(token, officeId);
+        log.info("END OFFICE OFFICE DELETE BY ID");
+        return new ResponseEntity<>(officeDeleted, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN')")

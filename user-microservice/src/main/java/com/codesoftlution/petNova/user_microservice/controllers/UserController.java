@@ -3,6 +3,7 @@ package com.codesoftlution.petNova.user_microservice.controllers;
 import com.codesoftlution.petNova.user_microservice.dtos.UserDetailDTO;
 import com.codesoftlution.petNova.user_microservice.dtos.UserPublicDTO;
 import com.codesoftlution.petNova.user_microservice.models.UserModel;
+import com.codesoftlution.petNova.user_microservice.request.RequestUpdateOfficeManager;
 import com.codesoftlution.petNova.user_microservice.request.RequestUpdateTenantManager;
 import com.codesoftlution.petNova.user_microservice.respositories.IRoleRepository;
 import com.codesoftlution.petNova.user_microservice.respositories.IUserRepository;
@@ -137,13 +138,21 @@ public class UserController {
         }
     }
 
-    @RequestMapping(value = "/updateUserOfficeManage/{userId}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/getUsersByOfficeId/{officeId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getUsersByOfficeId(@PathVariable("officeId") Long officeId) {
+        log.info("START GET USER PUBLIC BY TENANT ID: ");
+        List<UserPublicDTO> usersFound = userServiceImpl.getUsersByOfficeId(officeId);
+        log.info("END GET USER PUBLIC BY TENANT ID: ");
+        return ResponseEntity.ok(usersFound);
+
+    }
+
+    @RequestMapping(value = "/updateUserOfficeManage", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> updateUserOfficeManage(
-            @PathVariable("userId") Long userId,
-            @Valid @RequestBody Long officeId
+            @Valid @RequestBody RequestUpdateOfficeManager requestUpdateOfficeManager
     ) {
         log.info("START UPDATE USER TENANT MANAGER");
-        userServiceImpl.updateUserOfficeManage(userId, officeId);
+        userServiceImpl.updateUserOfficeManage(requestUpdateOfficeManager);
         log.info("END UPDATE USER TENANT MANAGER");
         return ResponseEntity.status(HttpStatus.OK).body(true);
     }

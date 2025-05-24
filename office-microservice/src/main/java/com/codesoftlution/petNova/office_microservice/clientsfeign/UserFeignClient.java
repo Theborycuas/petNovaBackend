@@ -2,6 +2,7 @@ package com.codesoftlution.petNova.office_microservice.clientsfeign;
 
 import com.codesoftlution.petNova.office_microservice.dtos.UserDTO;
 import com.codesoftlution.petNova.office_microservice.dtos.UserPublicDTO;
+import com.codesoftlution.petNova.office_microservice.request.RequestUpdateOfficeManager;
 import com.codesoftlution.petNova.office_microservice.response.AuthSesionResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
@@ -16,11 +17,10 @@ public interface UserFeignClient {
             @PathVariable("officeId") Long officeId
     );
 
-    @PutMapping("/users/updateUserOfficeManage/{userId}")
+    @PutMapping("/users/updateUserOfficeManage")
     boolean updateUserOfficeManage(
             @RequestHeader("Authorization") String token,
-            @PathVariable("userId") Long userId,
-            @RequestBody Long officeId
+            @RequestBody RequestUpdateOfficeManager requestUpdateOfficeManager
     );
 
 }

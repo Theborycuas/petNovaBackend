@@ -1,11 +1,8 @@
 package com.codesoftlution.petnova.tenantmicroservice.mapers;
 
-import com.codesoftlution.petnova.tenantmicroservice.clientsfeign.UserFeignClient;
 import com.codesoftlution.petnova.tenantmicroservice.dtos.TenantDTO;
 import com.codesoftlution.petnova.tenantmicroservice.dtos.TenantDetailDTO;
-import com.codesoftlution.petnova.tenantmicroservice.dtos.UserPublicDTO;
 import com.codesoftlution.petnova.tenantmicroservice.models.TenantModel;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,9 +11,7 @@ import java.util.List;
 
 public class TenantMappers {
 
-    public static TenantModel toTenantModel(final TenantDTO tenantDTO) {
-        ZoneId zoneId = ZoneId.systemDefault();
-        System.out.println("Zona horaria actual: " + zoneId);
+    public static TenantModel toTenantCreateModel(final TenantDTO tenantDTO) {
 
         TenantModel tenantModel = new TenantModel();
 
@@ -34,7 +29,7 @@ public class TenantMappers {
         tenantModel.setActive(false);
         tenantModel.setEmailVerified(false);
 
-        tenantModel.setTimeZone(String.valueOf(zoneId));
+        tenantModel.setTimeZone(ZoneId.systemDefault().toString());
         tenantModel.setPreferredLanguage("ES");
 
         tenantModel.setCreatedAt(LocalDateTime.now());

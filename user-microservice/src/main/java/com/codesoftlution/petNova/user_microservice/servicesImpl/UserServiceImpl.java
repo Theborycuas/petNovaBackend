@@ -6,6 +6,7 @@ import com.codesoftlution.petNova.user_microservice.dtos.UserPublicDTO;
 import com.codesoftlution.petNova.user_microservice.interfaces.IUserServices;
 import com.codesoftlution.petNova.user_microservice.mappers.UserMapper;
 import com.codesoftlution.petNova.user_microservice.models.*;
+import com.codesoftlution.petNova.user_microservice.request.RequestUpdateOfficeManager;
 import com.codesoftlution.petNova.user_microservice.request.RequestUpdateTenantManager;
 import com.codesoftlution.petNova.user_microservice.respositories.IRoleRepository;
 import com.codesoftlution.petNova.user_microservice.respositories.IUserRepository;
@@ -131,7 +132,6 @@ public class UserServiceImpl implements IUserServices {
     }
 
 
-
     public UserModel createUser(UserModel userModel) {
         ZoneId zoneId = ZoneId.systemDefault();
         System.out.println("Zona horaria actual: " + zoneId);
@@ -219,7 +219,6 @@ public class UserServiceImpl implements IUserServices {
     }
 
 
-
     @Override
     public List<UserModel> updateUserTenantManage(RequestUpdateTenantManager request) {
         Long tenantId = request.getTenantId();
@@ -304,55 +303,89 @@ public class UserServiceImpl implements IUserServices {
     }
 
 
-
-
     @Override
-    public UserModel updateUserOfficeManage(Long userId, Long officeId) {
-        // Rol general para usuario normal
+    public List<UserModel> updateUserOfficeManage(RequestUpdateOfficeManager request) {
+        Long officeId = request.getOfficeId();
+        boolean isDeleted = request.isDeleted();
+        List<Long> newManagerIds = request.getManagerIds();
+
         RoleModel roleUser = new RoleModel();
-        roleUser.setId(7L); // ID de usuario normal
+        roleUser.setId(7L); // Rol básico: USUARIO_NORMAL
 
-        // Rol general para administrador de oficina
         RoleModel roleOfficeAdmin = new RoleModel();
-        roleOfficeAdmin.setId(4L); // ID de OFFICE_ADMIN
+        roleOfficeAdmin.setId(4L); // Rol OFFICE_ADMIN
 
-        // Paso 1: Encontrar al usuario actual con rol OFFICE_ADMIN en esa oficina
-        Optional<UserOfficeRelation> currentRelationOpt = userOfficeRelationRepository.findById_OfficeId(officeId)
+        // Paso 1: Obtener relaciones actuales activas de esa office
+        List<UserOfficeRelation> currentManagers = userOfficeRelationRepository.findById_OfficeId(officeId)
                 .stream()
                 .filter(rel -> "OFFICE_ADMIN".equalsIgnoreCase(rel.getRole()))
-                .findFirst();
+                .filter(rel -> "ACTIVE".equalsIgnoreCase(rel.getStatus()))
+                .toList();
 
-        currentRelationOpt.ifPresent(relation -> {
-            Long previousUserId = relation.getId().getUserId();
+        for (UserOfficeRelation rel : currentManagers) {
+            Long userId = rel.getId().getUserId();
 
-            // Eliminar la relación actual
-            userOfficeRelationRepository.deleteById(relation.getId());
+            // Soft delete de la relación
+            rel.setStatus("INACTIVE");
+            userOfficeRelationRepository.save(rel);
 
-            // Cambiar rol global del usuario a "normal"
-            UserModel previousUser = iUserRepository.findById(previousUserId)
-                    .orElseThrow(() -> new RuntimeException("Usuario anterior no encontrado"));
+            // Verificar si el usuario aún es admin en otra office
+            boolean sigueSiendoAdmin = userOfficeRelationRepository.findById_UserId(userId).stream()
+                    .anyMatch(r ->
+                            "OFFICE_ADMIN".equalsIgnoreCase(r.getRole())
+                                    && "ACTIVE".equalsIgnoreCase(r.getStatus())
+                                    && !r.getId().getOfficeId().equals(officeId)
+                    );
 
-            previousUser.setRole(roleUser);
-            previousUser.setUpdateAt(LocalDateTime.now());
+            // Si ya no administra ninguna otra office, bajar el rol
+            if (!sigueSiendoAdmin) {
+                iUserRepository.findById(userId).ifPresent(user -> {
+                    user.setRole(roleUser);
+                    user.setUpdateAt(LocalDateTime.now());
+                    iUserRepository.save(user);
+                });
+            }
+        }
 
-            iUserRepository.save(previousUser);
-        });
+        List<UserModel> updatedManagers = new ArrayList<>();
 
-        // Paso 2: Asignar nuevo usuario como administrador de oficina
-        UserModel newAdmin = iUserRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        // Paso 2: Asignar nuevos managers (solo si no es eliminación)
+        if (!isDeleted && newManagerIds != null) {
+            for (Long userId : newManagerIds) {
+                UserModel user = iUserRepository.findById(userId)
+                        .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        // Crear nueva relación user ↔ office con rol OFFICE_ADMIN
-        UserOfficeKey key = new UserOfficeKey(userId, officeId);
-        UserOfficeRelation newRelation = new UserOfficeRelation(key, "OFFICE_ADMIN", "ACTIVE");
-        userOfficeRelationRepository.save(newRelation);
+                // Verificar si ya existe la relación
+                Optional<UserOfficeRelation> existing = userOfficeRelationRepository
+                        .findById(new UserOfficeKey(userId, officeId));
 
-        // Asignar rol global al usuario
-        newAdmin.setRole(roleOfficeAdmin);
-        newAdmin.setUpdateAt(LocalDateTime.now());
+                if (existing.isPresent()) {
+                    UserOfficeRelation relation = existing.get();
+                    relation.setStatus("ACTIVE");
+                    relation.setRole("OFFICE_ADMIN");
+                    relation.setAssignedAt(LocalDateTime.now());
+                    userOfficeRelationRepository.save(relation);
+                } else {
+                    // Crear nueva relación
+                    UserOfficeKey key = new UserOfficeKey(userId, officeId);
+                    UserOfficeRelation newRelation = new UserOfficeRelation(key, "OFFICE_ADMIN", "ACTIVE");
+                    newRelation.setAssignedAt(LocalDateTime.now());
+                    userOfficeRelationRepository.save(newRelation);
+                }
 
-        return iUserRepository.save(newAdmin);
+                // Si no tiene el rol global de admin, asignárselo
+                if (user.getRole() == null || !user.getRole().getId().equals(roleOfficeAdmin.getId())) {
+                    user.setRole(roleOfficeAdmin);
+                    user.setUpdateAt(LocalDateTime.now());
+                    iUserRepository.save(user);
+                }
+
+                updatedManagers.add(user);
+            }
+        }
+        return updatedManagers;
     }
+
 
 
     @Override
@@ -368,6 +401,14 @@ public class UserServiceImpl implements IUserServices {
     @Override
     public List<UserPublicDTO> getUsersByTenantId(Long tenantId) {
         List<Long> adminIds = userTenantRelationRepository.findAdminUserIdsByTenantId(tenantId);
+        return iUserRepository.findAllById(adminIds).stream()
+                .map(UserMapper::toUserPublicDTO)
+                .toList();
+    }
+
+    @Override
+    public List<UserPublicDTO> getUsersByOfficeId(Long officeId) {
+        List<Long> adminIds = userTenantRelationRepository.findAdminUserIdsByOfficeId(officeId);
         return iUserRepository.findAllById(adminIds).stream()
                 .map(UserMapper::toUserPublicDTO)
                 .toList();

@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -39,7 +38,7 @@ public class TenantServiceImpl implements ITenantService {
     @Override
     public TenantModel createTenant(String token, TenantDTO tenantDTO) {
 
-        TenantModel tenantSaved = tenantRepository.save(toTenantModel(tenantDTO));
+        TenantModel tenantSaved = tenantRepository.save(toTenantCreateModel(tenantDTO));
 
         RequestUpdateTenantManager requestUpdateTenantManager = new RequestUpdateTenantManager();
         requestUpdateTenantManager.setTenantId(tenantSaved.getId());
