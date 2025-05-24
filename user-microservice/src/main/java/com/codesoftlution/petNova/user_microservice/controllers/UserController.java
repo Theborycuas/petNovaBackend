@@ -1,7 +1,9 @@
 package com.codesoftlution.petNova.user_microservice.controllers;
 
 import com.codesoftlution.petNova.user_microservice.dtos.UserDetailDTO;
+import com.codesoftlution.petNova.user_microservice.dtos.UserPublicDTO;
 import com.codesoftlution.petNova.user_microservice.models.UserModel;
+import com.codesoftlution.petNova.user_microservice.request.RequestUpdateOfficeManager;
 import com.codesoftlution.petNova.user_microservice.request.RequestUpdateTenantManager;
 import com.codesoftlution.petNova.user_microservice.respositories.IRoleRepository;
 import com.codesoftlution.petNova.user_microservice.respositories.IUserRepository;
@@ -19,7 +21,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-import static com.codesoftlution.petNova.user_microservice.mappers.UserMapper.toUserDetailDTO;
 import static com.codesoftlution.petNova.user_microservice.mappers.UserMapper.toUserPublicDTO;
 import static com.codesoftlution.petNova.user_microservice.servicesImpl.CifradoAESService.pnCifradoService;
 import static com.codesoftlution.petNova.user_microservice.servicesImpl.CifradoAESService.pnDescifradoService;
@@ -50,10 +51,12 @@ public class UserController {
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN')")
-    @RequestMapping(value = "/getAllUsersNoTenantManager", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<?> getAllUsersNoTenantManager() {
+    @RequestMapping(value = "/getEligibleUsersForAssignment", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<?> getEligibleUsersForAssignment(
+            @RequestParam String context
+    ) {
         log.info("START GET ALL USERS");
-        List<UserDetailDTO> userDetailDTOList = userServiceImpl.getAllUsersNoTenantManager();
+        List<UserDetailDTO> userDetailDTOList = userServiceImpl.getEligibleUsersForAssignment(context);
         log.info("END GET ALL USERS");
         return new ResponseEntity<>(userDetailDTOList, HttpStatus.OK);
     }
@@ -61,10 +64,9 @@ public class UserController {
     @RequestMapping(value = "/getUserDetailById/{userId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getUserDetailById(@PathVariable("userId") Long userId) {
         log.info("START GET USER DETAILS BY ID: ");
-        UserModel userFound = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("No se encontró el usuario"));
+        UserDetailDTO userDTO = userServiceImpl.getUserDetailById(userId);
         log.info("END GET USER DETAILS BY ID: ");
-        return ResponseEntity.status(HttpStatus.OK).body(toUserDetailDTO(userFound));
+        return ResponseEntity.status(HttpStatus.OK).body(userDTO);
     }
 
     @RequestMapping(value = "/getUserPublicById/{userId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -91,9 +93,9 @@ public class UserController {
             @Valid @RequestBody UserDetailDTO userDTO
     ) {
         log.info("START UPDATE USER");
-        UserModel updatedUser = userServiceImpl.updateUser(userId, userDTO);
+        UserDetailDTO updatedDTO = userServiceImpl.updateUser(userId, userDTO);
         log.info("END UPDATE USER");
-        return ResponseEntity.status(HttpStatus.OK).body(toUserDetailDTO(updatedUser));
+        return ResponseEntity.status(HttpStatus.OK).body(updatedDTO);
     }
 
     @RequestMapping(value = "/deleteUserById/{userId}", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -104,50 +106,40 @@ public class UserController {
         return new ResponseEntity<>(userDelete, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/updateUserTenantManage/{userId}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/updateUserTenantManage", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> updateUserTenantManage(
-            @PathVariable("userId") Long userId,
             @Valid @RequestBody RequestUpdateTenantManager requestUpdateTenantManager
     ) {
         log.info("START UPDATE USER TENANT MANAGER");
-        userServiceImpl.updateUserTenantManage(userId, requestUpdateTenantManager);
+        userServiceImpl.updateUserTenantManage(requestUpdateTenantManager);
         log.info("END UPDATE USER TENANT MANAGER");
         return ResponseEntity.status(HttpStatus.OK).body(true);
     }
 
-    @RequestMapping(value = "/getUserByTenantId/{tenantId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getUserByTenantId(@PathVariable("tenantId") Long tenantId) {
+    @RequestMapping(value = "/getUsersByTenantId/{tenantId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getUsersByTenantId(@PathVariable("tenantId") Long tenantId) {
         log.info("START GET USER PUBLIC BY TENANT ID: ");
-        Optional<UserModel> userFound = userServiceImpl.getUserByTenantId(tenantId);
+        List<UserPublicDTO> usersFound = userServiceImpl.getUsersByTenantId(tenantId);
         log.info("END GET USER PUBLIC BY TENANT ID: ");
+        return ResponseEntity.ok(usersFound);
 
-        if (userFound.isPresent()) {
-            return ResponseEntity.ok(toUserPublicDTO(userFound.get()));
-        } else {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        }
     }
 
-    @RequestMapping(value = "/getUserByOfficeId/{officeId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getUserByOfficeId(@PathVariable("officeId") Long officeId) {
-        log.info("START GET USER PUBLIC BY OFFICE ID: ");
-        Optional<UserModel> userFound = userServiceImpl.getUserByOfficeId(officeId);
-        log.info("END GET USER PUBLIC BY OFFICE ID: ");
+    @RequestMapping(value = "/getUsersByOfficeId/{officeId}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getUsersByOfficeId(@PathVariable("officeId") Long officeId) {
+        log.info("START GET USER PUBLIC BY TENANT ID: ");
+        List<UserPublicDTO> usersFound = userServiceImpl.getUsersByOfficeId(officeId);
+        log.info("END GET USER PUBLIC BY TENANT ID: ");
+        return ResponseEntity.ok(usersFound);
 
-        if (userFound.isPresent()) {
-            return ResponseEntity.ok(toUserPublicDTO(userFound.get()));
-        } else {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        }
     }
 
-    @RequestMapping(value = "/updateUserOfficeManage/{userId}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value = "/updateUserOfficeManage", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> updateUserOfficeManage(
-            @PathVariable("userId") Long userId,
-            @Valid @RequestBody Long officeId
+            @Valid @RequestBody RequestUpdateOfficeManager requestUpdateOfficeManager
     ) {
         log.info("START UPDATE USER TENANT MANAGER");
-        userServiceImpl.updateUserOfficeManage(userId, officeId);
+        userServiceImpl.updateUserOfficeManage(requestUpdateOfficeManager);
         log.info("END UPDATE USER TENANT MANAGER");
         return ResponseEntity.status(HttpStatus.OK).body(true);
     }

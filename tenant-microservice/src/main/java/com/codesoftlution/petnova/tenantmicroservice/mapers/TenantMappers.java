@@ -1,20 +1,17 @@
 package com.codesoftlution.petnova.tenantmicroservice.mapers;
 
-import com.codesoftlution.petnova.tenantmicroservice.clientsfeign.UserFeignClient;
 import com.codesoftlution.petnova.tenantmicroservice.dtos.TenantDTO;
-import com.codesoftlution.petnova.tenantmicroservice.dtos.UserPublicDTO;
+import com.codesoftlution.petnova.tenantmicroservice.dtos.TenantDetailDTO;
 import com.codesoftlution.petnova.tenantmicroservice.models.TenantModel;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
 
 public class TenantMappers {
 
-    public static TenantModel toTenantModel(final TenantDTO tenantDTO) {
-        ZoneId zoneId = ZoneId.systemDefault();
-        System.out.println("Zona horaria actual: " + zoneId);
+    public static TenantModel toTenantCreateModel(final TenantDTO tenantDTO) {
 
         TenantModel tenantModel = new TenantModel();
 
@@ -32,7 +29,7 @@ public class TenantMappers {
         tenantModel.setActive(false);
         tenantModel.setEmailVerified(false);
 
-        tenantModel.setTimeZone(String.valueOf(zoneId));
+        tenantModel.setTimeZone(ZoneId.systemDefault().toString());
         tenantModel.setPreferredLanguage("ES");
 
         tenantModel.setCreatedAt(LocalDateTime.now());
@@ -54,5 +51,31 @@ public class TenantMappers {
         tenant.setCurrency(tenantModel.getCurrency());
         return tenant;
 
+    }
+
+    public static TenantDetailDTO toTenantDetailDTO(final TenantModel model, final List<Long> managerIds) {
+
+        TenantDetailDTO dto = new TenantDetailDTO();
+        dto.setId(model.getId());
+        dto.setTenantName(model.getTenantName());
+        dto.setContactEmail(model.getContactEmail());
+        dto.setContactPhone(model.getContactPhone());
+        dto.setAddress(model.getAddress());
+        dto.setCity(model.getCity());
+        dto.setManagerIds(managerIds);
+        dto.setPlanId(model.getPlanId());
+        dto.setSubscriptionStartDate(model.getSubscriptionStartDate());
+        dto.setSubscriptionEndDate(model.getSubscriptionEndDate());
+        dto.setBillingCycle(model.getBillingCycle());
+        dto.setCurrency(model.getCurrency());
+        dto.setActive(model.isActive());
+        dto.setEmailVerified(model.isEmailVerified());
+        dto.setTimeZone(model.getTimeZone());
+        dto.setPreferredLanguage(model.getPreferredLanguage());
+        dto.setFeatureFlags(model.getFeatureFlags());
+        dto.setMetadata(model.getMetadata());
+        dto.setCreatedAt(model.getCreatedAt());
+        dto.setUpdatedAt(model.getUpdatedAt());
+        return dto;
     }
 }

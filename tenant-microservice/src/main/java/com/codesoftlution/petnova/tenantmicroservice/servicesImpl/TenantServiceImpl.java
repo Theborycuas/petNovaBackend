@@ -3,22 +3,24 @@ package com.codesoftlution.petnova.tenantmicroservice.servicesImpl;
 import com.codesoftlution.petnova.tenantmicroservice.clientsfeign.OfficeFeignClient;
 import com.codesoftlution.petnova.tenantmicroservice.clientsfeign.UserFeignClient;
 import com.codesoftlution.petnova.tenantmicroservice.dtos.TenantDTO;
+import com.codesoftlution.petnova.tenantmicroservice.dtos.TenantDetailDTO;
 import com.codesoftlution.petnova.tenantmicroservice.dtos.UserPublicDTO;
 import com.codesoftlution.petnova.tenantmicroservice.interfaces.ITenantService;
 import com.codesoftlution.petnova.tenantmicroservice.models.TenantModel;
 import com.codesoftlution.petnova.tenantmicroservice.repositories.ITenantRepository;
 import com.codesoftlution.petnova.tenantmicroservice.request.RequestUpdateTenantManager;
 import feign.FeignException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
-import static com.codesoftlution.petnova.tenantmicroservice.mapers.TenantMappers.toTenantDTO;
-import static com.codesoftlution.petnova.tenantmicroservice.mapers.TenantMappers.toTenantModel;
+import static com.codesoftlution.petnova.tenantmicroservice.mapers.TenantMappers.*;
 
 @Service
 public class TenantServiceImpl implements ITenantService {
@@ -36,14 +38,15 @@ public class TenantServiceImpl implements ITenantService {
     @Override
     public TenantModel createTenant(String token, TenantDTO tenantDTO) {
 
-        TenantModel tenantSaved = tenantRepository.save(toTenantModel(tenantDTO));
+        TenantModel tenantSaved = tenantRepository.save(toTenantCreateModel(tenantDTO));
 
         RequestUpdateTenantManager requestUpdateTenantManager = new RequestUpdateTenantManager();
         requestUpdateTenantManager.setTenantId(tenantSaved.getId());
+        requestUpdateTenantManager.setManagerIds(tenantDTO.getManagerIds());
         requestUpdateTenantManager.setDeleted(false);
 
         boolean userUpdate = userFeignClient
-                .updateUserTenantManage(token, tenantDTO.getManagerId(), requestUpdateTenantManager);
+                .updateUserTenantManage(token, requestUpdateTenantManager);
 
         if(!userUpdate) {
             throw new RuntimeException("User update failed");
@@ -58,8 +61,23 @@ public class TenantServiceImpl implements ITenantService {
     }
 
     @Override
-    public Optional<TenantModel> getTenantById(Long id) {
-        return tenantRepository.findById(id);
+    public TenantDetailDTO getTenantById( String token, Long id) {
+        // 1. Buscar el tenant
+        TenantModel tenant = tenantRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Tenant no encontrado con id: " + id));
+
+        // 2. Llamar al feign client para traer los usuarios del tenant
+        List<UserPublicDTO> userList = userFeignClient.getUsersByTenantId(token, id);
+
+        // 3. Filtrar los administradores y extraer sus IDs
+        List<Long> managerIds = userList.stream()
+               /* .filter(user -> List.of("TENANT_ADMIN", "ADMIN")
+                        .contains(user.getRoleName().toUpperCase()))*/
+                .map(UserPublicDTO::getId)
+                .collect(Collectors.toList());
+
+        // 4. Mapear a DTO
+        return toTenantDetailDTO(tenant, managerIds);
     }
 
     @Override
@@ -92,11 +110,12 @@ public class TenantServiceImpl implements ITenantService {
 
         RequestUpdateTenantManager requestUpdateTenantManager = new RequestUpdateTenantManager();
         requestUpdateTenantManager.setTenantId(tenantFound.getId());
+        requestUpdateTenantManager.setManagerIds(tenantDTO.getManagerIds());
         requestUpdateTenantManager.setDeleted(false);
 
-        if(tenantDTO.getManagerId() != null) {
+        if(tenantDTO.getManagerIds() != null) {
             boolean userUpdate = userFeignClient
-                    .updateUserTenantManage(token, tenantDTO.getManagerId(), requestUpdateTenantManager);
+                    .updateUserTenantManage(token, requestUpdateTenantManager);
 
             if(!userUpdate) {
                 throw new RuntimeException("User update failed");
@@ -117,10 +136,11 @@ public class TenantServiceImpl implements ITenantService {
         }
         RequestUpdateTenantManager requestUpdateTenantManager = new RequestUpdateTenantManager();
         requestUpdateTenantManager.setTenantId(tenantId);
+        requestUpdateTenantManager.setManagerIds(Collections.singletonList(0L));
         requestUpdateTenantManager.setDeleted(true);
 
         boolean userUpdate = userFeignClient
-                .updateUserTenantManage(token, 0L, requestUpdateTenantManager);
+                .updateUserTenantManage(token, requestUpdateTenantManager);
 
         if(!userUpdate) {
             throw new RuntimeException("User update failed");
@@ -139,10 +159,15 @@ public class TenantServiceImpl implements ITenantService {
         TenantDTO tenantDTO = toTenantDTO(tenantModel);
 
         try {
-            UserPublicDTO userPublicDTO = userFeignClient.getUserByTenantId(token, id);
-            if (userPublicDTO != null) {
-                tenantDTO.setManagerId(userPublicDTO.getId());
-            }
+            List<UserPublicDTO> userPublicDTO = userFeignClient.getUsersByTenantId(token, id);
+
+            List<Long> managerIds = userPublicDTO.stream()
+                    /* .filter(user -> List.of("TENANT_ADMIN", "ADMIN")
+                             .contains(user.getRoleName().toUpperCase()))*/
+                    .map(UserPublicDTO::getId)
+                    .collect(Collectors.toList());
+            tenantDTO.setManagerIds(managerIds);
+
         } catch (FeignException.NotFound e) {
             // Usuario no encontrado: dejar managerId como null
         } catch (FeignException e) {

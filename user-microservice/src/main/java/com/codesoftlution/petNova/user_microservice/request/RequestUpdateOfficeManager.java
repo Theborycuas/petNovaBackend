@@ -5,8 +5,8 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class RequestUpdateTenantManager {
-    private Long tenantId;
+public class RequestUpdateOfficeManager {
+    private Long OfficeId;
     private boolean isDeleted;
     private List<Long> managerIds;
 }

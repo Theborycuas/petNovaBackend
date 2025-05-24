@@ -4,9 +4,15 @@ import com.codesoftlution.petNova.user_microservice.dtos.UserDetailDTO;
 import com.codesoftlution.petNova.user_microservice.dtos.UserPublicDTO;
 import com.codesoftlution.petNova.user_microservice.models.UserModel;
 
+import java.util.List;
+
 public class UserMapper {
 
-    public static UserDetailDTO toUserDetailDTO(final UserModel userModel) {
+    public static UserDetailDTO toUserDetailDTO(
+            final UserModel userModel,
+            final List<Long> tenantIds,
+            final List<Long> officeIds) {
+
         UserDetailDTO userDTO = new UserDetailDTO();
         userDTO.setId(userModel.getId());
         userDTO.setName(userModel.getName());
@@ -22,8 +28,8 @@ public class UserMapper {
         userDTO.setCreatedAt(userModel.getCreatedAt());
         userDTO.setUpdateAt(userModel.getUpdateAt());
         userDTO.setAvatarUrl(userModel.getAvatarUrl());
-        userDTO.setOfficeId(userModel.getOfficeId());
-        userDTO.setTenantId(userModel.getTenantId());
+        userDTO.setTenantIds(tenantIds);
+        userDTO.setOfficeIds(officeIds);
         return userDTO;
     }
 

@@ -1,6 +1,7 @@
 package com.codesoftlution.petnova.tenantmicroservice.controllers;
 
 import com.codesoftlution.petnova.tenantmicroservice.dtos.TenantDTO;
+import com.codesoftlution.petnova.tenantmicroservice.dtos.TenantDetailDTO;
 import com.codesoftlution.petnova.tenantmicroservice.models.TenantModel;
 import com.codesoftlution.petnova.tenantmicroservice.servicesImpl.TenantServiceImpl;
 import jakarta.validation.Valid;
@@ -31,9 +32,9 @@ public class TenantControllers {
             @Valid @RequestBody TenantDTO tenantDTO
     ) {
         log.info("START CREATE TENANT");
-        TenantModel savedTenant = tenantServiceImpl.createTenant(token, tenantDTO);
+        TenantModel tenantSaved = tenantServiceImpl.createTenant(token, tenantDTO);
         log.info("END CREATE TENANT");
-        return new ResponseEntity<>(savedTenant, HttpStatus.CREATED);
+        return new ResponseEntity<>(tenantSaved.getId(), HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasRole('SUPER_ADMIN')")
@@ -48,13 +49,14 @@ public class TenantControllers {
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'TENANT_ADMIN')")
     @RequestMapping(value = "/getTenantDetailById/{tenantId}", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> getTenantDetailById(
+            @RequestHeader("Authorization") String token,
             @PathVariable Long tenantId
     ){
         log.info("START GET TENANT BY ID");
-        Optional<TenantModel> tenantModel = Optional.ofNullable(tenantServiceImpl.getTenantById(tenantId))
+        TenantDetailDTO tenantFound = Optional.ofNullable(tenantServiceImpl.getTenantById(token, tenantId))
                 .orElseThrow(() -> new RuntimeException("Tenant no Encontrado"));
         log.info("END GET TENANT BY ID");
-        return new ResponseEntity<>(tenantModel, HttpStatus.OK);
+        return new ResponseEntity<>(tenantFound, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'TENANT_ADMIN')")
@@ -79,7 +81,7 @@ public class TenantControllers {
         log.info("START GET TENANT BY ID");
         TenantModel updatedTenant = tenantServiceImpl.updateTenantById(token, tenantId, updateTenantDTO);
         log.info("END GET TENANT BY ID");
-        return new ResponseEntity<>(updatedTenant, HttpStatus.OK);
+        return new ResponseEntity<>(updatedTenant.getId(), HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyRole('SUPER_ADMIN')")

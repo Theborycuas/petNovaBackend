@@ -9,16 +9,25 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class OfficeDTO {
 
-    private Long id;
+    private Long tenantId;
     private String name;
     private String address;
-    private String phoneNumber;
-    private String linkLogoPhoto;
-    private Long managerId;
+    private String city;
+    private String contactPhone;
+    private String taxId;
+    private String logoUrl;
+    private String contactEmail;
+    private Long currentPlan;
+    private List<Long> managerIds;
+
 }

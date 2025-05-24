@@ -3,6 +3,8 @@ package com.codesoftlution.petnova.tenantmicroservice.dtos;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class TenantDTO {
@@ -14,6 +16,6 @@ public class TenantDTO {
     private String city;
     private Long planId;
     private String currency;
-    private Long managerId;
+    private List<Long> managerIds;
 
 }

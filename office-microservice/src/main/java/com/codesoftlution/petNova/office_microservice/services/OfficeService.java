@@ -2,22 +2,25 @@ package com.codesoftlution.petNova.office_microservice.services;
 
 
 import com.codesoftlution.petNova.office_microservice.clientsfeign.UserFeignClient;
-import com.codesoftlution.petNova.office_microservice.config.JwtUtil;
 import com.codesoftlution.petNova.office_microservice.dtos.OfficeDTO;
 import com.codesoftlution.petNova.office_microservice.dtos.OfficeDetailsDTO;
 import com.codesoftlution.petNova.office_microservice.dtos.UserPublicDTO;
 import com.codesoftlution.petNova.office_microservice.mapers.OfficeMappers;
 import com.codesoftlution.petNova.office_microservice.models.OfficeModel;
 import com.codesoftlution.petNova.office_microservice.repositories.IOfficeRepository;
+import com.codesoftlution.petNova.office_microservice.request.RequestUpdateOfficeManager;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.codesoftlution.petNova.office_microservice.mapers.OfficeMappers.toOfficeCreateModel;
 
 @Service
 public class OfficeService {
@@ -27,25 +30,23 @@ public class OfficeService {
     @Autowired
     private UserFeignClient userFeignClient;
 
-    @Autowired
-    private JwtUtil jwtUtil;
+    public OfficeModel createOffice(String token, OfficeDTO officeDTO) {
 
-    public OfficeModel officeRegister(String token, OfficeModel officeModel) {
-        String roleSuperAdmin = jwtUtil.extractRole(token);
+        OfficeModel officeModel = officeRepository.save(toOfficeCreateModel(officeDTO));
 
-        if (roleSuperAdmin.equals("SUPER_ADMIN")) {
-            officeModel.setTenantId(1L);
-            officeModel.setCreatedAt(LocalDateTime.now());
-            officeModel.setSubscriptionStartDate(LocalDate.now());
+        RequestUpdateOfficeManager requestUpdateOfficeManager = new RequestUpdateOfficeManager();
+        requestUpdateOfficeManager.setOfficeId(officeModel.getId());
+        requestUpdateOfficeManager.setManagerIds(officeDTO.getManagerIds());
+        requestUpdateOfficeManager.setDeleted(false);
 
-            if (officeModel.getCurrentPlan().equals(1L)) {
-                officeModel.setSubscriptionEndDate(LocalDate.now().plusDays(30));
-            } else {
-                officeModel.setSubscriptionEndDate(LocalDate.now().plusDays(30));
-            }
-            return officeRepository.save(officeModel);
+        boolean userUpdate = userFeignClient
+                .updateUserOfficeManage(token, requestUpdateOfficeManager);
+
+        if (!userUpdate) {
+            throw new RuntimeException("User update failed");
         }
-        throw new RuntimeException("No tienes permisos para registrar el Offices");
+
+        return officeModel;
     }
 
     public List<OfficeModel> getAllOffices() {
@@ -57,18 +58,20 @@ public class OfficeService {
         List<OfficeModel> offices = officeRepository.findAllByDeletedAtIsNull();
         List<OfficeDetailsDTO> officeListDTO = new ArrayList<>();
 
-        for(OfficeModel office : offices) {
-            OfficeDetailsDTO dto = OfficeMappers.toOfficeDetailsDTO(office);
-
+        for (OfficeModel office : offices) {
+            OfficeDetailsDTO dto = new OfficeDetailsDTO();
             try {
-                UserPublicDTO user = userFeignClient.getUserByOfficeId(token, office.getId());
-                if (user != null) {
-                    dto.setManagerName(user.getName());
+                List<UserPublicDTO> users = userFeignClient.getUsersByOfficeId(token, office.getId());
+                if (users != null) {
+                    List<Long> managerIds = users.stream()
+                            .map(UserPublicDTO::getId)
+                            .collect(Collectors.toList());
+                    dto = OfficeMappers.toOfficeDetailsDTO(office, managerIds);
                 } else {
-                    dto.setManagerName(null);
+                    dto = OfficeMappers.toOfficeDetailsDTO(office, null);
                 }
             } catch (Exception e) {
-                dto.setManagerName(null);
+                dto = OfficeMappers.toOfficeDetailsDTO(office, null);
             }
             officeListDTO.add(dto);
         }
@@ -78,6 +81,23 @@ public class OfficeService {
 
     public Optional<OfficeModel> getOfficeById(Long officeId) {
         return officeRepository.findById(officeId);
+    }
+
+    public OfficeDetailsDTO getOfficeDetailById(String token, Long officeId) {
+        // 1. Buscar la oficina
+        OfficeModel office = officeRepository.findById(officeId)
+                .orElseThrow(() -> new EntityNotFoundException("Office no encontrada con id: " + officeId));
+
+        // 2. Llamar al feign client para traer los usuarios asignados a esa office
+        List<UserPublicDTO> userList = userFeignClient.getUsersByOfficeId(token, officeId);
+
+        // 3. Filtrar los administradores por rol y obtener sus IDs
+        List<Long> managerIds = userList.stream()
+                .map(UserPublicDTO::getId)
+                .collect(Collectors.toList());
+
+        // 4. Mapear y retornar el DTO
+        return OfficeMappers.toOfficeDetailsDTO(office, managerIds);
     }
 
 
@@ -97,29 +117,58 @@ public class OfficeService {
         if (officeDTO.getAddress() != null) {
             officeFound.setAddress(officeDTO.getAddress());
         }
-        if (officeDTO.getPhoneNumber() != null) {
-            officeFound.setContactPhone(officeDTO.getPhoneNumber());
+        if (officeDTO.getCity() != null) {
+            officeFound.setCity(officeDTO.getCity());
+        }
+        if (officeDTO.getContactEmail() != null) {
+            officeFound.setContactEmail(officeDTO.getContactEmail());
+        }
+        if (officeDTO.getContactPhone() != null) {
+            officeFound.setContactPhone(officeDTO.getContactPhone());
+        }
+        if (officeDTO.getCurrentPlan() != null) {
+            officeFound.setCurrentPlan(officeDTO.getCurrentPlan());
         }
 
         officeFound.setUpdatedAt(LocalDateTime.now());
 
-        if(officeDTO.getManagerId() != null) {
+        RequestUpdateOfficeManager requestUpdateOfficeManager = new RequestUpdateOfficeManager();
+        requestUpdateOfficeManager.setOfficeId(officeId);
+        requestUpdateOfficeManager.setManagerIds(officeDTO.getManagerIds());
+        requestUpdateOfficeManager.setDeleted(false);
+
+        if (officeDTO.getManagerIds() != null) {
             boolean userUpdate = userFeignClient.updateUserOfficeManage(
-                    token, officeDTO.getManagerId(), officeId);
-            if(!userUpdate) {
+                    token, requestUpdateOfficeManager);
+
+            if (!userUpdate) {
                 throw new RuntimeException("User update failed");
             }
         }
         return officeRepository.save(officeFound);
     }
 
-    public OfficeModel deleteOfficeById(Long officeId) {
+    public boolean deleteOfficeById(String token, Long officeId) {
 
         OfficeModel consultorioFound = officeRepository.findById(officeId)
                 .orElseThrow(() -> new RuntimeException("Consultorio no Encontrado"));
-        consultorioFound.softDelete();
 
-        return officeRepository.save(consultorioFound);
+        RequestUpdateOfficeManager requestUpdateOfficeManager = new RequestUpdateOfficeManager();
+        requestUpdateOfficeManager.setOfficeId(officeId);
+        requestUpdateOfficeManager.setManagerIds(Collections.singletonList(0L));
+        requestUpdateOfficeManager.setDeleted(true);
+
+        boolean userUpdate = userFeignClient
+                .updateUserOfficeManage(token, requestUpdateOfficeManager);
+
+
+        if (!userUpdate) {
+            throw new RuntimeException("User update failed");
+        }
+        consultorioFound.softDelete();
+        officeRepository.save(consultorioFound);
+
+        return true;
     }
 
     public void deleteOfficeByTenantId(Long tenantId) {

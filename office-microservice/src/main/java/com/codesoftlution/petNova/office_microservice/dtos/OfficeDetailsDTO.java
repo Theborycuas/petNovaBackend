@@ -4,6 +4,7 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class OfficeDetailsDTO {
@@ -19,7 +20,7 @@ public class OfficeDetailsDTO {
     private boolean active;
     private String contactEmail;
     private boolean emailVerified;
-    private String managerName;
+    private List<Long> managerIds;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
