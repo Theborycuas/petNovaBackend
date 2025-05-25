@@ -49,6 +49,8 @@ public class TenantMappers {
         tenant.setCity(tenantModel.getCity());
         tenant.setPlanId(tenantModel.getPlanId());
         tenant.setCurrency(tenantModel.getCurrency());
+        tenant.setActive(tenantModel.isActive());
+        tenant.setCreatedAt(tenantModel.getCreatedAt());
         return tenant;
 
     }

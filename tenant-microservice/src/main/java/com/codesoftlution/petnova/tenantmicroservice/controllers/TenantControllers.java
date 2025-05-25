@@ -96,6 +96,15 @@ public class TenantControllers {
         return new ResponseEntity<>(tenantDeleted, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
+    @RequestMapping(value = "/getRecentInactiveTenants", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
+        public ResponseEntity<?> getRecentInactiveTenants() {
+        log.info("START GET RECENT INACTIVE TENANTS");
+        List<TenantDTO> recentInactiveTenants = tenantServiceImpl.getRecentInactiveTenants();
+        log.info("END GET  RECENT INACTIVE TENANTS");
+        return new ResponseEntity<>(recentInactiveTenants, HttpStatus.OK);
+    }
+
     @RequestMapping(value = "/getOk", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<?> getOk() {
         return new ResponseEntity<>("OK", HttpStatus.OK);

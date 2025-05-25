@@ -3,6 +3,7 @@ package com.codesoftlution.petnova.tenantmicroservice.dtos;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -17,5 +18,7 @@ public class TenantDTO {
     private Long planId;
     private String currency;
     private List<Long> managerIds;
+    private boolean active;
+    private LocalDateTime createdAt;
 
 }
